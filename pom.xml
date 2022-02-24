@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.charlemaznable</groupId>
+        <artifactId>char-dependencies</artifactId>
+        <version>0.0.6-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>char-miner</artifactId>
+    <version>0.0.6-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Char Miner</name>
+    <url>https://github.com/CharLemAznable/char-miner</url>
+    <description>Miner Config, diamond client extension.</description>
+
+    <scm>
+        <connection>scm:git:https://github.com/CharLemAznable/char-miner.git</connection>
+        <developerConnection>scm:git:https://github.com/CharLemAznable/char-miner.git</developerConnection>
+        <url>https://github.com/CharLemAznable/char-miner</url>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <properties>
+        <sonar.projectKey>CharLemAznable_char-miner</sonar.projectKey>
+
+        <char-elves.version>0.0.6-SNAPSHOT</char-elves.version>
+        <vertx-diamond-config.version>0.1.6-SNAPSHOT</vertx-diamond-config.version>
+        <es-diamond-config.version>0.0.6-SNAPSHOT</es-diamond-config.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.charlemaznable</groupId>
+            <artifactId>char-elves</artifactId>
+            <version>${char-elves.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.charlemaznable</groupId>
+            <artifactId>vertx-diamond-config</artifactId>
+            <version>${vertx-diamond-config.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.github.charlemaznable</groupId>
+            <artifactId>es-diamond-config</artifactId>
+            <version>${es-diamond-config.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.github.bingoohuang</groupId>
+            <artifactId>diamond-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.moandjiezana.toml</groupId>
+            <artifactId>toml4j</artifactId>
+        </dependency>
+
+        <!-- dependency for using org.n3r.eql.util.O -->
+        <dependency>
+            <groupId>com.github.bingoohuang</groupId>
+            <artifactId>eql</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
