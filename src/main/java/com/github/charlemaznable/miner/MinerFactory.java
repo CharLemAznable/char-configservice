@@ -3,15 +3,12 @@ package com.github.charlemaznable.miner;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.EasyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
-import com.github.charlemaznable.core.lang.ExpiringMapp;
 import com.github.charlemaznable.core.lang.Factory;
-import com.github.charlemaznable.core.lang.LoadingCachee;
 import com.github.charlemaznable.core.lang.Str;
 import com.github.charlemaznable.miner.MinerConfig.DataIdProvider;
 import com.github.charlemaznable.miner.MinerConfig.DefaultValueProvider;
 import com.github.charlemaznable.miner.MinerConfig.GroupProvider;
 import com.github.charlemaznable.miner.MinerStoneParse.MinerStoneParser;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import lombok.NoArgsConstructor;
@@ -40,12 +37,15 @@ import static com.github.charlemaznable.core.config.Arguments.argumentsAsSubstit
 import static com.github.charlemaznable.core.lang.ClzPath.classResourceAsSubstitutor;
 import static com.github.charlemaznable.core.lang.Condition.blankThen;
 import static com.github.charlemaznable.core.lang.Condition.checkNotNull;
+import static com.github.charlemaznable.core.lang.ExpiringMapp.expiringMap;
 import static com.github.charlemaznable.core.lang.LoadingCachee.get;
+import static com.github.charlemaznable.core.lang.LoadingCachee.simpleCache;
 import static com.github.charlemaznable.core.lang.Str.isBlank;
 import static com.github.charlemaznable.core.spring.SpringFactory.springFactory;
 import static com.github.charlemaznable.miner.MinerElf.minerAsSubstitutor;
 import static com.github.charlemaznable.miner.MinerElf.parseStoneToMinerable;
 import static com.github.charlemaznable.miner.MinerElf.parseStoneToProperties;
+import static com.google.common.cache.CacheLoader.from;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static lombok.AccessLevel.PRIVATE;
@@ -58,7 +58,7 @@ public final class MinerFactory {
     private static StringSubstitutor minerMinerSubstitutor;
     private static StringSubstitutor minerClassPathSubstitutor;
     private static LoadingCache<Factory, MinerLoader> minerLoaderCache
-            = LoadingCachee.simpleCache(CacheLoader.from(MinerLoader::new));
+            = simpleCache(from(MinerLoader::new));
 
     public static <T> T getMiner(Class<T> minerClass) {
         return minerLoader(FactoryContext.get()).getMiner(minerClass);
@@ -88,9 +88,9 @@ public final class MinerFactory {
 
         private Factory factory;
         private LoadingCache<Class, Object> minerCache
-                = LoadingCachee.simpleCache(CacheLoader.from(this::loadMiner));
+                = simpleCache(from(this::loadMiner));
         private ExpiringMap<Class, Minerable> minerableCache
-                = ExpiringMapp.expiringMap(ExpiringEntryLoaderr.from(this::loadMinerable));
+                = expiringMap(ExpiringEntryLoaderr.from(this::loadMinerable));
 
         MinerLoader(Factory factory) {
             this.factory = checkNotNull(factory);
@@ -105,7 +105,7 @@ public final class MinerFactory {
         }
 
         @Nonnull
-        private <T> Object loadMiner(Class<T> minerClass) {
+        private <T> Object loadMiner(@Nonnull Class<T> minerClass) {
             ensureClassIsAnInterface(minerClass);
             checkClassConfig(minerClass);
 
@@ -158,7 +158,7 @@ public final class MinerFactory {
         private Factory factory;
         private MinerLoader minerLoader;
         private ExpiringMap<Method, Pair<String, String>> stoneCache
-                = ExpiringMapp.expiringMap(ExpiringEntryLoaderr.from(this::loadStone));
+                = expiringMap(ExpiringEntryLoaderr.from(this::loadStone));
 
         public MinerProxy(Class<T> minerClass, Factory factory, MinerLoader minerLoader) {
             this.minerClass = minerClass;
