@@ -25,7 +25,13 @@ diamond-client扩展包, 定义接口读取diamond配置.
 
 ##### Maven Dependency
 
-待发布.
+```xml
+<dependency>
+  <groupId>com.github.charlemaznable</groupId>
+  <artifactId>char-miner</artifactId>
+  <version>0.0.6</version>
+</dependency>
+```
 
 ##### Maven Dependency SNAPSHOT
 
@@ -33,6 +39,6 @@ diamond-client扩展包, 定义接口读取diamond配置.
 <dependency>
   <groupId>com.github.charlemaznable</groupId>
   <artifactId>char-miner</artifactId>
-  <version>0.0.6-SNAPSHOT</version>
+  <version>0.0.7-SNAPSHOT</version>
 </dependency>
 ```
