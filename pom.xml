@@ -48,8 +48,8 @@
         <sonar.projectKey>CharLemAznable_char-miner</sonar.projectKey>
 
         <char-elves.version>0.0.6-SNAPSHOT</char-elves.version>
-        <vertx-diamond-config.version>0.1.6-SNAPSHOT</vertx-diamond-config.version>
         <es-diamond-config.version>0.0.6-SNAPSHOT</es-diamond-config.version>
+        <vertx-diamond-config.version>0.1.6-SNAPSHOT</vertx-diamond-config.version>
 
         <logback-miner.version>0.1.6-SNAPSHOT</logback-miner.version>
     </properties>
