@@ -49,8 +49,8 @@ import static com.google.common.cache.CacheLoader.from;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.core.annotation.AnnotatedElementUtils.getMergedAnnotation;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
-import static org.springframework.core.annotation.AnnotationUtils.getAnnotation;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class MinerFactory {
@@ -123,13 +123,13 @@ public final class MinerFactory {
             throw new MinerConfigException(clazz + " is not An Interface");
         }
 
-        private <T> MinerConfig checkClassConfig(Class<T> clazz) {
-            return checkNotNull(getAnnotation(clazz, MinerConfig.class),
+        private <T> void checkClassConfig(Class<T> clazz) {
+            checkNotNull(findAnnotation(clazz, MinerConfig.class),
                     new MinerConfigException(clazz + " has no MinerConfig"));
         }
 
         private <T> ExpiringValue<Minerable> loadMinerable(Class<T> clazz) {
-            val minerConfig = checkClassConfig(clazz);
+            val minerConfig = checkMinerConfig(clazz);
             val group = checkMinerGroup(clazz, minerConfig);
             val minerable = new Miner(blankThen(group, () -> "DEFAULT_GROUP"));
             val dataId = checkMinerDataId(clazz, minerConfig);
@@ -137,6 +137,10 @@ public final class MinerFactory {
                     parseStoneToMinerable(minerable.getString(dataId));
             val cacheSeconds = Math.max(0, minerConfig.cacheSeconds());
             return new ExpiringValue(value, cacheSeconds, TimeUnit.SECONDS);
+        }
+
+        private <T> MinerConfig checkMinerConfig(Class<T> clazz) {
+            return checkNotNull(getMergedAnnotation(clazz, MinerConfig.class));
         }
 
         private <T> String checkMinerGroup(Class<T> clazz, MinerConfig minerConfig) {
@@ -190,7 +194,7 @@ public final class MinerFactory {
 
         @SuppressWarnings("unchecked")
         private ExpiringValue<Pair<String, String>> loadStone(Method method) {
-            val minerConfig = findAnnotation(method, MinerConfig.class);
+            val minerConfig = getMergedAnnotation(method, MinerConfig.class);
             String group = checkMinerGroup(method, minerConfig);
             val dataId = checkMinerDataId(method, minerConfig);
             val defaultEmptyValue = nonNull(findAnnotation(method, DefaultEmptyValue.class));
@@ -242,7 +246,7 @@ public final class MinerFactory {
             if (rt == String.class) return value;
             if (rt.isPrimitive()) return parsePrimitive(rt, value);
 
-            val minerStoneParse = findAnnotation(method, MinerStoneParse.class);
+            val minerStoneParse = getMergedAnnotation(method, MinerStoneParse.class);
             if (nonNull(minerStoneParse)) {
                 val parserClass = minerStoneParse.value();
                 if (MinerStoneParser.class != parserClass) {

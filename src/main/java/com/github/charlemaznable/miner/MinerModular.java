@@ -8,7 +8,7 @@ import com.google.inject.Provider;
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
 import static com.github.charlemaznable.miner.MinerFactory.minerLoader;
 import static java.util.Objects.nonNull;
-import static org.springframework.core.annotation.AnnotationUtils.getAnnotation;
+import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 public final class MinerModular extends CommonModular<MinerModular> {
 
@@ -25,7 +25,7 @@ public final class MinerModular extends CommonModular<MinerModular> {
 
     @Override
     public boolean isCandidateClass(Class clazz) {
-        return nonNull(getAnnotation(clazz, MinerConfig.class));
+        return nonNull(findAnnotation(clazz, MinerConfig.class));
     }
 
     @Override
