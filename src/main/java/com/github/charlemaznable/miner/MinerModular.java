@@ -6,9 +6,9 @@ import com.google.inject.Module;
 import com.google.inject.Provider;
 
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
+import static com.github.charlemaznable.core.spring.AnnotationElf.findAnnotation;
 import static com.github.charlemaznable.miner.MinerFactory.minerLoader;
 import static java.util.Objects.nonNull;
-import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 public final class MinerModular extends CommonModular<MinerModular> {
 

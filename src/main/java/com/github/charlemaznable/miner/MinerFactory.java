@@ -41,6 +41,7 @@ import static com.github.charlemaznable.core.lang.ExpiringMapp.expiringMap;
 import static com.github.charlemaznable.core.lang.LoadingCachee.get;
 import static com.github.charlemaznable.core.lang.LoadingCachee.simpleCache;
 import static com.github.charlemaznable.core.lang.Str.isBlank;
+import static com.github.charlemaznable.core.spring.AnnotationElf.findAnnotation;
 import static com.github.charlemaznable.core.spring.SpringFactory.springFactory;
 import static com.github.charlemaznable.miner.MinerElf.minerAsSubstitutor;
 import static com.github.charlemaznable.miner.MinerElf.parseStoneToMinerable;
@@ -50,7 +51,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.core.annotation.AnnotatedElementUtils.getMergedAnnotation;
-import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class MinerFactory {
