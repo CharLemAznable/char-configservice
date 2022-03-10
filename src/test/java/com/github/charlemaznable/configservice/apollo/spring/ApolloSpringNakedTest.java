@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static com.github.charlemaznable.configservice.diamond.DiamondFactory.getDiamond;
+import static com.github.charlemaznable.configservice.apollo.ApolloFactory.getApollo;
 import static org.awaitility.Awaitility.await;
 import static org.joor.Reflect.onClass;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +34,7 @@ public class ApolloSpringNakedTest {
         await().forever().untilAsserted(() -> assertEquals("name=John\nfull=John Doe\nlong=John Doe Richard",
                 ConfigService.getConfig("application").getProperty("DEFAULT_DATA", "")));
 
-        val testWired = getDiamond(TestWired.class);
+        val testWired = getApollo(TestWired.class);
         assertNotNull(testWired);
         assertEquals("John", testWired.name());
         assertEquals("John Doe", testWired.full());
@@ -44,10 +44,10 @@ public class ApolloSpringNakedTest {
         assertNull(testWired.abc(null));
 
         assertThrows(ConfigServiceException.class,
-                () -> getDiamond(TestWiredConcrete.class));
+                () -> getApollo(TestWiredConcrete.class));
 
         assertThrows(ConfigServiceException.class,
-                () -> getDiamond(TestWiredNone.class));
+                () -> getApollo(TestWiredNone.class));
 
         ApplicationContext applicationContext = onClass(SpringContext.class)
                 .field("applicationContext").get();
