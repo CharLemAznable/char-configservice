@@ -26,6 +26,7 @@ import com.github.charlemaznable.configservice.test.common.TestError.ProvideErro
 import com.github.charlemaznable.configservice.test.common.TestGetterDefault;
 import com.github.charlemaznable.configservice.test.common.TestParseData;
 import com.github.charlemaznable.core.config.Arguments;
+import com.github.charlemaznable.core.context.FactoryContext;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.AfterAll;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.github.charlemaznable.configservice.ConfigFactory.getConfig;
 import static com.github.charlemaznable.core.context.FactoryContext.ReflectFactory.reflectFactory;
 import static com.github.charlemaznable.core.lang.Await.awaitForMicros;
 import static com.github.charlemaznable.core.lang.Await.awaitForMillis;
@@ -79,7 +81,10 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         MockApolloServer.addOrModifyProperty("base.group", "base.data", "xyz");
         await().forever().until(() -> changed);
 
-        val testBase = apolloLoader.getApollo(TestBase.class);
+        FactoryContext.set(reflectFactory());
+        Arguments.initial("--ConfigService=apollo");
+
+        val testBase = getConfig(TestBase.class);
         assertEquals("abc", testBase.abc());
         assertEquals("xyz", testBase.xyz());
 
@@ -97,10 +102,13 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         assertEquals(testBase, testBase);
 
         assertThrows(ConfigServiceException.class,
-                () -> apolloLoader.getApollo(TestBaseConcrete.class));
+                () -> getConfig(TestBaseConcrete.class));
 
         assertThrows(ConfigServiceException.class,
-                () -> apolloLoader.getApollo(TestBaseNone.class));
+                () -> getConfig(TestBaseNone.class));
+
+        Arguments.initial();
+        FactoryContext.unload();
 
         ConfigService.getConfig("application").removeChangeListener(this);
         ConfigService.getConfig("base.group").removeChangeListener(this);

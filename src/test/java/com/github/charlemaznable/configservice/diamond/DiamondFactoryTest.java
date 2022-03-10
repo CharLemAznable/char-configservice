@@ -22,6 +22,7 @@ import com.github.charlemaznable.configservice.test.common.TestError.ProvideErro
 import com.github.charlemaznable.configservice.test.common.TestGetterDefault;
 import com.github.charlemaznable.configservice.test.common.TestParseData;
 import com.github.charlemaznable.core.config.Arguments;
+import com.github.charlemaznable.core.context.FactoryContext;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.AfterAll;
@@ -31,6 +32,7 @@ import org.n3r.diamond.client.impl.MockDiamondServer;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.github.charlemaznable.configservice.ConfigFactory.getConfig;
 import static com.github.charlemaznable.core.context.FactoryContext.ReflectFactory.reflectFactory;
 import static com.github.charlemaznable.core.lang.Await.awaitForMicros;
 import static com.github.charlemaznable.core.lang.Await.awaitForMillis;
@@ -62,7 +64,10 @@ public class DiamondFactoryTest {
         MockDiamondServer.setConfigInfo("DEFAULT_GROUP", "base.data", "abc");
         MockDiamondServer.setConfigInfo("base.group", "base.data", "xyz");
 
-        val testBase = diamondLoader.getDiamond(TestBase.class);
+        FactoryContext.set(reflectFactory());
+        Arguments.initial("--ConfigService=diamond");
+
+        val testBase = getConfig(TestBase.class);
         assertEquals("abc", testBase.abc());
         assertEquals("xyz", testBase.xyz());
 
@@ -70,10 +75,13 @@ public class DiamondFactoryTest {
         assertEquals(testBase, testBase);
 
         assertThrows(ConfigServiceException.class,
-                () -> diamondLoader.getDiamond(TestBaseConcrete.class));
+                () -> getConfig(TestBaseConcrete.class));
 
         assertThrows(ConfigServiceException.class,
-                () -> diamondLoader.getDiamond(TestBaseNone.class));
+                () -> getConfig(TestBaseNone.class));
+
+        Arguments.initial();
+        FactoryContext.unload();
     }
 
     @Test

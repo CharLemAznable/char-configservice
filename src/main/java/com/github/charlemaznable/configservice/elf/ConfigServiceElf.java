@@ -19,8 +19,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.github.charlemaznable.core.config.Arguments.argumentsAsSubstitutor;
-import static com.github.charlemaznable.core.lang.ClzPath.classResourceAsSubstitutor;
+import static com.github.charlemaznable.core.config.Arguments.argumentsAsProperties;
+import static com.github.charlemaznable.core.lang.ClzPath.classResourceAsProperties;
+import static com.github.charlemaznable.core.lang.Propertiess.ssMap;
 import static com.github.charlemaznable.core.lang.Propertiess.tryDecrypt;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -39,13 +40,14 @@ import static org.springframework.core.annotation.AnnotatedElementUtils.getMerge
 @NoArgsConstructor(access = PRIVATE)
 public final class ConfigServiceElf {
 
-    private static StringSubstitutor classPathSubstitutor;
+    private static Properties classPathProperties;
 
     public static String substitute(String source) {
-        if (isNull(classPathSubstitutor)) {
-            classPathSubstitutor = classResourceAsSubstitutor("config.env.props");
+        if (isNull(classPathProperties)) {
+            classPathProperties = classResourceAsProperties("configservice.env.props");
         }
-        return classPathSubstitutor.replace(argumentsAsSubstitutor().replace(source));
+        return new StringSubstitutor(ssMap(argumentsAsProperties(
+                classPathProperties))).replace(source);
     }
 
     public static void ensureClassIsAnInterface(Class<?> clazz) {
