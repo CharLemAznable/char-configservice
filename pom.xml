@@ -10,18 +10,18 @@
         <version>0.0.7-SNAPSHOT</version>
     </parent>
 
-    <artifactId>char-miner</artifactId>
+    <artifactId>char-configservice</artifactId>
     <version>0.0.7-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Char Miner</name>
-    <url>https://github.com/CharLemAznable/char-miner</url>
-    <description>Miner Config, diamond client extension.</description>
+    <name>Char ConfigService</name>
+    <url>https://github.com/CharLemAznable/char-configservice</url>
+    <description>Config Service clients.</description>
 
     <scm>
-        <connection>scm:git:https://github.com/CharLemAznable/char-miner.git</connection>
-        <developerConnection>scm:git:https://github.com/CharLemAznable/char-miner.git</developerConnection>
-        <url>https://github.com/CharLemAznable/char-miner</url>
+        <connection>scm:git:https://github.com/CharLemAznable/char-configservice.git</connection>
+        <developerConnection>scm:git:https://github.com/CharLemAznable/char-configservice.git</developerConnection>
+        <url>https://github.com/CharLemAznable/char-configservice</url>
     </scm>
 
     <repositories>
@@ -45,20 +45,17 @@
     </repositories>
 
     <properties>
-        <sonar.projectKey>CharLemAznable_char-miner</sonar.projectKey>
+        <sonar.projectKey>CharLemAznable_char-configservice</sonar.projectKey>
 
         <char-elves.version>0.0.7-SNAPSHOT</char-elves.version>
-        <es-diamond-config.version>0.0.7-SNAPSHOT</es-diamond-config.version>
-        <vertx-diamond-config.version>0.1.7-SNAPSHOT</vertx-diamond-config.version>
+        <es-config-elves.version>0.0.7-SNAPSHOT</es-config-elves.version>
+        <vertx-config-elves.version>0.1.7-SNAPSHOT</vertx-config-elves.version>
 
-        <logback-miner.version>0.1.7-SNAPSHOT</logback-miner.version>
+        <apollo-mockserver.version>0.0.7-SNAPSHOT</apollo-mockserver.version>
+        <logback-dendrobe.version>0.1.7-SNAPSHOT</logback-dendrobe.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.github.bingoohuang</groupId>
-            <artifactId>diamond-client</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.github.charlemaznable</groupId>
             <artifactId>char-elves</artifactId>
@@ -66,15 +63,13 @@
         </dependency>
         <dependency>
             <groupId>com.github.charlemaznable</groupId>
-            <artifactId>es-diamond-config</artifactId>
-            <version>${es-diamond-config.version}</version>
-            <optional>true</optional>
+            <artifactId>es-config-elves</artifactId>
+            <version>${es-config-elves.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.charlemaznable</groupId>
-            <artifactId>vertx-diamond-config</artifactId>
-            <version>${vertx-diamond-config.version}</version>
-            <optional>true</optional>
+            <artifactId>vertx-config-elves</artifactId>
+            <version>${vertx-config-elves.version}</version>
         </dependency>
         <dependency>
             <groupId>com.moandjiezana.toml</groupId>
@@ -88,8 +83,14 @@
 
         <dependency>
             <groupId>com.github.charlemaznable</groupId>
-            <artifactId>logback-miner</artifactId>
-            <version>${logback-miner.version}</version>
+            <artifactId>apollo-mockserver</artifactId>
+            <version>${apollo-mockserver.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.charlemaznable</groupId>
+            <artifactId>logback-dendrobe</artifactId>
+            <version>${logback-dendrobe.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
