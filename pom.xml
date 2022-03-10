@@ -16,7 +16,7 @@
 
     <name>Char ConfigService</name>
     <url>https://github.com/CharLemAznable/char-configservice</url>
-    <description>Config Service clients.</description>
+    <description>Config Service clients, apollo/diamond.</description>
 
     <scm>
         <connection>scm:git:https://github.com/CharLemAznable/char-configservice.git</connection>
