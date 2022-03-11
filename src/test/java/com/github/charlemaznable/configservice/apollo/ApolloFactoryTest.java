@@ -155,12 +155,12 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         changed = false;
         // no substitute
         MockApolloServer.addOrModifyProperty("application", "DEFAULT_DATA", "" +
-                "name=John\nfull=John Doe\nlong=John Doe Richard\n" +
+                "name=John\nfull=${name} Doe\nlong=${full} Richard\n" +
                 "testMode=yes\ntestMode2=TRUE\n" +
-                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John Doe Richard)\n" +
-                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John Doe) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John Doe Richard)");
+                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})\n" +
+                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${name}) " +
+                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${full}) " +
+                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})");
         await().forever().until(() -> changed);
 
         val testDefault = apolloLoader.getApollo(TestDefault.class);
@@ -249,7 +249,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         changed = false;
         MockApolloServer.addOrModifyProperty("application", "DEFAULT_DATA",
-                "name=John\nfull=John Doe\nlong=John Doe Richard");
+                "name=John\nfull=${name} Doe\nlong=${full} Richard");
         await().forever().until(() -> changed);
 
         val testGetterDefault = apolloLoader.getApollo(TestGetterDefault.class);
@@ -270,7 +270,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         changed = false;
         MockApolloServer.addOrModifyProperty("application", "DEFAULT_DATA",
-                "# toml\nname=John\nfull=John Doe\nlong=John Doe Richard");
+                "# toml\nname=John\nfull=${name} Doe\nlong=${full} Richard");
         await().forever().until(() -> changed);
 
         val testGetterDefaultError = apolloLoader.getApollo(TestGetterDefault.class);
@@ -300,12 +300,12 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         changed = false;
         // no substitute
         MockApolloServer.addOrModifyProperty("DEF_GROUP", "DEF_DATA", "" +
-                "name=John\nfull=John Doe\nlong=John Doe Richard\n" +
+                "name=John\nfull=${name} Doe\nlong=${full} Richard\n" +
                 "testMode=yes\ntestMode2=TRUE\n" +
-                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John Doe Richard)\n" +
-                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John Doe) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(John Doe Richard)");
+                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})\n" +
+                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${name}) " +
+                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${full}) " +
+                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})");
         await().forever().until(() -> changed);
 
         val testDefData = apolloLoader.getApollo(TestDefData.class);
@@ -407,7 +407,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         changed = false;
         MockApolloServer.addOrModifyProperty("GROUPGroup", "DataDATA",
-                "name=John\nfull=John Doe\nlong=John Doe Richard");
+                "name=John\nfull=${name} Doe\nlong=${full} Richard");
         await().forever().until(() -> changed);
 
         val stoneProps = apolloLoader.getApollo(TestConfigProps.class);
