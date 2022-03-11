@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, ApolloSpringArgumentsExtension.class})
 @ContextConfiguration(classes = ApolloSpringConfiguration.class)
 public class ApolloSpringTest {
 

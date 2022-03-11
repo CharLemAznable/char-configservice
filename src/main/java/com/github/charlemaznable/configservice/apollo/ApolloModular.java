@@ -12,7 +12,7 @@ import static java.util.Objects.nonNull;
 
 public final class ApolloModular extends CommonModular<ApolloModular> {
 
-    private ApolloLoader apolloLoader;
+    private ApolloLoader loader;
 
     public ApolloModular(Module... modules) {
         this(newArrayList(modules));
@@ -20,7 +20,7 @@ public final class ApolloModular extends CommonModular<ApolloModular> {
 
     public ApolloModular(Iterable<? extends Module> modules) {
         super(modules);
-        this.apolloLoader = apolloLoader(guiceFactory);
+        this.loader = apolloLoader(guiceFactory);
     }
 
     @Override
@@ -34,6 +34,6 @@ public final class ApolloModular extends CommonModular<ApolloModular> {
     }
 
     public <T> T getApollo(Class<T> configClass) {
-        return this.apolloLoader.getApollo(configClass);
+        return this.loader.getApollo(configClass);
     }
 }

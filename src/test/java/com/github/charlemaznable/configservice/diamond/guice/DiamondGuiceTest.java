@@ -1,11 +1,13 @@
 package com.github.charlemaznable.configservice.diamond.guice;
 
+import com.github.charlemaznable.configservice.ConfigModular;
 import com.github.charlemaznable.configservice.diamond.DiamondModular;
 import com.github.charlemaznable.configservice.elf.ConfigServiceException;
 import com.github.charlemaznable.configservice.test.TestWired;
 import com.github.charlemaznable.configservice.test.TestWiredConcrete;
 import com.github.charlemaznable.configservice.test.TestWiredDataId;
 import com.github.charlemaznable.configservice.test.TestWiredNone;
+import com.github.charlemaznable.core.config.Arguments;
 import com.github.charlemaznable.core.guice.GuiceFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -56,7 +58,9 @@ public class DiamondGuiceTest {
 
     @Test
     public void testWired() {
-        val diamondModular = new DiamondModular(new AbstractModule() {
+        Arguments.initial("--ConfigService=diamond");
+
+        val configModular = new ConfigModular(new AbstractModule() {
             @Override
             public void configure() {
                 bind(TestWiredDataId.class).toProvider(Providers.of(new TestWiredDataId() {
@@ -67,7 +71,7 @@ public class DiamondGuiceTest {
                 }));
             }
         }).bindClasses(TestWired.class, TestWiredConcrete.class, TestWiredNone.class);
-        val injector = Guice.createInjector(diamondModular.createModule());
+        val injector = Guice.createInjector(configModular.createModule());
 
         val testWired = injector.getInstance(TestWired.class);
         assertNotNull(testWired);
@@ -91,6 +95,8 @@ public class DiamondGuiceTest {
 
         val testWiredNone = injector.getInstance(TestWiredNone.class);
         assertNull(testWiredNone);
+
+        Arguments.initial();
     }
 
     @Test

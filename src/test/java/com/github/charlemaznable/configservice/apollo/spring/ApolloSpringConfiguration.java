@@ -1,7 +1,7 @@
 package com.github.charlemaznable.configservice.apollo.spring;
 
 import com.github.charlemaznable.apollo.MockApolloServer;
-import com.github.charlemaznable.configservice.apollo.ApolloScan;
+import com.github.charlemaznable.configservice.ConfigScan;
 import com.github.charlemaznable.configservice.test.TestWiredPropertyName;
 import com.github.charlemaznable.configservice.test.TestWiredScanAnchor;
 import com.github.charlemaznable.core.spring.ElvesImport;
@@ -18,7 +18,7 @@ import static org.joor.Reflect.on;
 
 @Configuration
 @ElvesImport
-@ApolloScan(basePackageClasses = TestWiredScanAnchor.class)
+@ConfigScan(basePackageClasses = TestWiredScanAnchor.class)
 public class ApolloSpringConfiguration {
 
     @Bean

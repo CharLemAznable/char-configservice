@@ -1,6 +1,6 @@
 package com.github.charlemaznable.configservice.diamond;
 
-import com.github.charlemaznable.configservice.DefaultConfigGetter;
+import com.github.charlemaznable.configservice.impl.DefaultConfigGetter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.n3r.diamond.client.Minerable;

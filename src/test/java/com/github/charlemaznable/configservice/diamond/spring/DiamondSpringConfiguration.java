@@ -1,6 +1,6 @@
 package com.github.charlemaznable.configservice.diamond.spring;
 
-import com.github.charlemaznable.configservice.diamond.DiamondScan;
+import com.github.charlemaznable.configservice.ConfigScan;
 import com.github.charlemaznable.configservice.test.TestWiredDataId;
 import com.github.charlemaznable.configservice.test.TestWiredScanAnchor;
 import com.github.charlemaznable.core.spring.ElvesImport;
@@ -18,7 +18,7 @@ import static org.joor.Reflect.on;
 
 @Configuration
 @ElvesImport
-@DiamondScan(basePackageClasses = TestWiredScanAnchor.class)
+@ConfigScan(basePackageClasses = TestWiredScanAnchor.class)
 public class DiamondSpringConfiguration {
 
     @Bean

@@ -3,7 +3,7 @@ package com.github.charlemaznable.configservice.apollo;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.util.function.Functions;
-import com.github.charlemaznable.configservice.DefaultConfigGetter;
+import com.github.charlemaznable.configservice.impl.DefaultConfigGetter;
 import lombok.AllArgsConstructor;
 
 import java.util.Properties;

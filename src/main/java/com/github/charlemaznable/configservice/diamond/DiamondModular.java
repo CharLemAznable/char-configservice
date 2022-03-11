@@ -12,7 +12,7 @@ import static java.util.Objects.nonNull;
 
 public final class DiamondModular extends CommonModular<DiamondModular> {
 
-    private DiamondLoader diamondLoader;
+    private DiamondLoader loader;
 
     public DiamondModular(Module... modules) {
         this(newArrayList(modules));
@@ -20,7 +20,7 @@ public final class DiamondModular extends CommonModular<DiamondModular> {
 
     public DiamondModular(Iterable<? extends Module> modules) {
         super(modules);
-        this.diamondLoader = diamondLoader(guiceFactory);
+        this.loader = diamondLoader(guiceFactory);
     }
 
     @Override
@@ -34,6 +34,6 @@ public final class DiamondModular extends CommonModular<DiamondModular> {
     }
 
     public <T> T getDiamond(Class<T> configClass) {
-        return this.diamondLoader.getDiamond(configClass);
+        return this.loader.getDiamond(configClass);
     }
 }

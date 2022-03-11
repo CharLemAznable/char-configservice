@@ -1,4 +1,6 @@
-package com.github.charlemaznable.configservice;
+package com.github.charlemaznable.configservice.impl;
+
+import com.github.charlemaznable.configservice.ConfigGetter;
 
 public abstract class DefaultConfigGetter implements ConfigGetter {
 
