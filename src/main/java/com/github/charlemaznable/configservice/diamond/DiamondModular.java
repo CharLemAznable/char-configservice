@@ -4,6 +4,7 @@ import com.github.charlemaznable.configservice.diamond.DiamondFactory.DiamondLoa
 import com.github.charlemaznable.core.guice.CommonModular;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import lombok.experimental.Delegate;
 
 import static com.github.charlemaznable.configservice.diamond.DiamondFactory.diamondLoader;
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
@@ -12,6 +13,7 @@ import static java.util.Objects.nonNull;
 
 public final class DiamondModular extends CommonModular<DiamondModular> {
 
+    @Delegate
     private DiamondLoader loader;
 
     public DiamondModular(Module... modules) {
@@ -31,9 +33,5 @@ public final class DiamondModular extends CommonModular<DiamondModular> {
     @Override
     public <T> Provider<T> createProvider(Class<T> clazz) {
         return () -> getDiamond(clazz);
-    }
-
-    public <T> T getDiamond(Class<T> configClass) {
-        return this.loader.getDiamond(configClass);
     }
 }

@@ -4,6 +4,7 @@ import com.github.charlemaznable.configservice.apollo.ApolloFactory.ApolloLoader
 import com.github.charlemaznable.core.guice.CommonModular;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import lombok.experimental.Delegate;
 
 import static com.github.charlemaznable.configservice.apollo.ApolloFactory.apolloLoader;
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
@@ -12,6 +13,7 @@ import static java.util.Objects.nonNull;
 
 public final class ApolloModular extends CommonModular<ApolloModular> {
 
+    @Delegate
     private ApolloLoader loader;
 
     public ApolloModular(Module... modules) {
@@ -31,9 +33,5 @@ public final class ApolloModular extends CommonModular<ApolloModular> {
     @Override
     public <T> Provider<T> createProvider(Class<T> clazz) {
         return () -> getApollo(clazz);
-    }
-
-    public <T> T getApollo(Class<T> configClass) {
-        return this.loader.getApollo(configClass);
     }
 }

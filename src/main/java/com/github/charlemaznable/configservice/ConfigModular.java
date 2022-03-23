@@ -6,6 +6,7 @@ import com.github.charlemaznable.configservice.diamond.DiamondConfig;
 import com.github.charlemaznable.core.guice.CommonModular;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import lombok.experimental.Delegate;
 
 import static com.github.charlemaznable.configservice.ConfigFactory.configLoader;
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
@@ -14,6 +15,7 @@ import static java.util.Objects.nonNull;
 
 public final class ConfigModular extends CommonModular<ConfigModular> {
 
+    @Delegate
     private ConfigLoader loader;
 
     public ConfigModular(Module... modules) {
@@ -36,9 +38,5 @@ public final class ConfigModular extends CommonModular<ConfigModular> {
     @Override
     public <T> Provider<T> createProvider(Class<T> clazz) {
         return () -> getConfig(clazz);
-    }
-
-    public <T> T getConfig(Class<T> configClass) {
-        return this.loader.getConfig(configClass);
     }
 }
