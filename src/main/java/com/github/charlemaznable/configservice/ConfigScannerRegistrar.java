@@ -1,6 +1,7 @@
 package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.apollo.ApolloConfig;
+import com.github.charlemaznable.configservice.apollo.ApolloFactory.ApolloLoader;
 import com.github.charlemaznable.configservice.diamond.DiamondConfig;
 import com.github.charlemaznable.core.spring.SpringFactoryBean;
 import com.github.charlemaznable.core.spring.SpringScannerRegistrar;
@@ -15,7 +16,7 @@ public final class ConfigScannerRegistrar extends SpringScannerRegistrar {
 
     public ConfigScannerRegistrar() {
         super(ConfigScan.class, ConfigFactoryBean.class,
-                ApolloConfig.class, DiamondConfig.class);
+                loader instanceof ApolloLoader ? ApolloConfig.class : DiamondConfig.class);
     }
 
     @Override
