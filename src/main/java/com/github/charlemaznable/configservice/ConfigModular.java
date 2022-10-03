@@ -1,13 +1,11 @@
 package com.github.charlemaznable.configservice;
 
-import com.github.charlemaznable.configservice.apollo.ApolloConfig;
-import com.github.charlemaznable.configservice.apollo.ApolloFactory.ApolloLoader;
-import com.github.charlemaznable.configservice.diamond.DiamondConfig;
 import com.github.charlemaznable.core.guice.CommonModular;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import lombok.experimental.Delegate;
 
+import static com.github.charlemaznable.configservice.ConfigFactory.configAnnotation;
 import static com.github.charlemaznable.configservice.ConfigFactory.configLoader;
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
 import static com.github.charlemaznable.core.spring.AnnotationElf.findAnnotation;
@@ -29,10 +27,7 @@ public final class ConfigModular extends CommonModular<ConfigModular> {
 
     @Override
     public boolean isCandidateClass(Class<?> clazz) {
-        if (this.loader instanceof ApolloLoader) {
-            return nonNull(findAnnotation(clazz, ApolloConfig.class));
-        }
-        return nonNull(findAnnotation(clazz, DiamondConfig.class));
+        return nonNull(findAnnotation(clazz, configAnnotation(loader)));
     }
 
     @Override
