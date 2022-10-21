@@ -569,7 +569,7 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配
 
 当类路径中仅包含apollo-client或diamond-client时, 将自动选取对应的配置实现.
 
-当类路径中同时包含apollo-client和diamond-client时, 根据[环境变量](#3.-指定坐标时使用环境变量)中设置的```ConfigService```值选取对应的配置实现.
+当类路径中同时包含apollo-client和diamond-client时, 根据[环境变量](#3-指定坐标时使用环境变量)中设置的```ConfigService```值选取对应的配置实现.
 
 ```
 # configservice.env.props
