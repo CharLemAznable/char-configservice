@@ -111,13 +111,14 @@ String value2 = myConfig.key2(); // value2: "value2"
 ##### 1.2. 读取diamond配置
 
 与apollo配置类似, diamond配置的```group:dataId```对应apollo配置的```namespace:propertyName```.
+
 将java代码中的```@ApolloConfig```替换为```@DiamondConfig```, 将```ApolloFactory.getApollo()```替换为```DiamondFactory.getDiamond()```即可.
 
 #### 2. 配置坐标的指定
 
 编写配置客户端接口时, 需要使用```@ApolloConfig```/```@DiamondConfig```注解, 在接口上标识其为配置客户端接口, 在接口或方法上指定配置读取的坐标.
-当注解在接口上时, ```namespace```/```group```的默认值为```"application"```/```"DEFAULT_GROUP"```, ```propertyName```/```dataId```/```value```的默认值为```""```.
-当注解在方法上时, 上述注解属性的默认值都是```""```.
+* 当注解在接口上时, ```namespace```/```group```的默认值为```"application"```/```"DEFAULT_GROUP"```, ```propertyName```/```dataId```/```value```的默认值为```""```.
+* 当注解在方法上时, 上述注解属性的默认值都是```""```.
 
 ##### 2.1. 默认坐标
 
@@ -522,7 +523,9 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配
 #### 3. 指定坐标时使用环境变量
 
 指定坐标值时, 可使用```${key}```标识环境变量.
+
 环境变量源为类路径中的```configservice.env.props```配置文件和```Arguments```启动参数.
+
 其中```Arguments```变量的优先级高于配置文件.
 
 #### 4. 类型转换
@@ -537,9 +540,13 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配
 #### 5. 配置默认值
 
 当未读取到指定坐标的配置值时, 可使用配置默认值返回缺省配置值.
+
 可使用注解中的```defaultValue```属性, 或方法调用的第一个入参配置默认值.
+
 方法入参的优先级高于```defaultValue```属性.
+
 ```defaultValue```属性配置的默认值也可使用使用环境变量, 也会进行类型转换.
+
 可在方法上添加```@DefaultEmptyValue```注解, 配置默认值为```""```而非```null```.
 
 #### 6. 配置读取并缓存
@@ -557,8 +564,11 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配
 #### 9. 兼容使用apollo/diamond
 
 配置客户端接口同时添加```@ApolloConfig```和```@DiamondConfig```注解.
+
 使用```ConfigFactory.getConfig()```方法获取客户端实例.
+
 当类路径中仅包含apollo-client或diamond-client时, 将自动选取对应的配置实现.
+
 当类路径中同时包含apollo-client和diamond-client时, 根据[环境变量](#3.-指定坐标时使用环境变量)中设置的```ConfigService```值选取对应的配置实现.
 
 ```
@@ -573,9 +583,11 @@ ConfigService=apollo
 #### 10. 在Spring中使用
 
 使用```@ApolloScan```/```@DiamondScan```/```@ConfigScan```指定扫描加载包路径.
+
 包路径中所有添加```@ApolloConfig```/```@DiamondConfig```注解的接口都将生成对应的配置客户端实例并注入SpringContext.
 
 #### 11. 在Guice中使用
 
 使用```ApolloModular```/```DiamondModular```按类或包路径扫描加载.
+
 创建的```Module```中将包含对应的配置客户端实例.
