@@ -71,7 +71,8 @@ public class DiamondFactoryTest {
         assertEquals("abc", testBase.abc());
         assertEquals("xyz", testBase.xyz());
 
-        assertEquals("ConfigService@" + Integer.toHexString(testBase.hashCode()), testBase.toString());
+        assertEquals("ConfigService:" + TestBase.class.getSimpleName() + "@"
+                + Integer.toHexString(testBase.hashCode()), testBase.toString());
         assertEquals(testBase, testBase);
 
         assertThrows(ConfigServiceException.class,

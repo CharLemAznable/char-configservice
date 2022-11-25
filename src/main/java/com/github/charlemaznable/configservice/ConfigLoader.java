@@ -58,6 +58,8 @@ public abstract class ConfigLoader {
                 method -> {
                     if (method.isDefault()) return 1;
                     return 0;
-                }, new Callback[]{configProxy, NoOp.INSTANCE}, null);
+                },
+                new Callback[]{configProxy, NoOp.INSTANCE},
+                new Object[]{configClass});
     }
 }

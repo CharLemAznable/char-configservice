@@ -1,9 +1,14 @@
 package com.github.charlemaznable.configservice.elf;
 
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@NoArgsConstructor
+import javax.annotation.Nonnull;
+
+@AllArgsConstructor
 public class ConfigDummy {
+
+    @Nonnull
+    private Class<?> implClass;
 
     @Override
     public boolean equals(Object obj) {
@@ -17,6 +22,6 @@ public class ConfigDummy {
 
     @Override
     public String toString() {
-        return "ConfigService@" + Integer.toHexString(hashCode());
+        return "ConfigService:" + implClass.getSimpleName() + "@" + Integer.toHexString(hashCode());
     }
 }

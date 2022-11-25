@@ -98,7 +98,8 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         assertFalse(testBaseGetter.getBoolean("base.data"));
         assertEquals(0, testBaseGetter.getDuration("base.data"));
 
-        assertEquals("ConfigService@" + Integer.toHexString(testBase.hashCode()), testBase.toString());
+        assertEquals("ConfigService:" + TestBase.class.getSimpleName() + "@"
+                + Integer.toHexString(testBase.hashCode()), testBase.toString());
         assertEquals(testBase, testBase);
 
         assertThrows(ConfigServiceException.class,
