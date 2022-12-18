@@ -120,8 +120,9 @@ public final class DiamondFactory {
             //   if minerable instanceof AbstractMiner
             //     use its defaultGroupName
             //   else do nothing
-            String stoneGroup = blankThen(group, () -> minerable instanceof AbstractMiner ?
-                    ((AbstractMiner) minerable).getDefaultGroupName() : group);
+            String stoneGroup = blankThen(group, () ->
+                    minerable instanceof AbstractMiner abstractMiner ?
+                            abstractMiner.getDefaultGroupName() : group);
             String stoneDataId = blankThen(dataId, method::getName);
             String stone = minerable.getStone(stoneGroup, stoneDataId);
             return new ExpiringValue<>(new ConfigEntry(stoneDataId,
