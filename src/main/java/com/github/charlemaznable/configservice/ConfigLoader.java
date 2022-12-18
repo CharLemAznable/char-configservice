@@ -1,15 +1,13 @@
 package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.elf.ConfigDummy;
-import com.github.charlemaznable.core.lang.EasyEnhancer;
+import com.github.charlemaznable.core.lang.BuddyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
 import com.google.common.cache.LoadingCache;
 import lombok.val;
 import net.jodah.expiringmap.ExpiringMap;
 import net.jodah.expiringmap.ExpiringValue;
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.NoOp;
 
 import javax.annotation.Nonnull;
 
@@ -24,9 +22,9 @@ import static com.google.common.cache.CacheLoader.from;
 public abstract class ConfigLoader {
 
     protected final Factory factory;
-    private LoadingCache<Class, Object> configCache
+    private final LoadingCache<Class<?>, Object> configCache
             = simpleCache(from(this::loadConfig));
-    private ExpiringMap<Class, ConfigGetter> configGetterCache
+    private final ExpiringMap<Class<?>, ConfigGetter> configGetterCache
             = expiringMap(ExpiringEntryLoaderr.from(this::loadConfigGetter));
 
     public ConfigLoader(Factory factory) {
@@ -53,13 +51,13 @@ public abstract class ConfigLoader {
         checkClassConfig(configClass);
 
         val configProxy = buildConfigProxy(configClass, factory);
-        return EasyEnhancer.create(ConfigDummy.class,
+        return BuddyEnhancer.create(ConfigDummy.class,
                 new Class[]{configClass, ConfigGetter.class},
                 method -> {
                     if (method.isDefault()) return 1;
                     return 0;
                 },
-                new Callback[]{configProxy, NoOp.INSTANCE},
+                new BuddyEnhancer.Delegate[]{configProxy, BuddyEnhancer.CallSuper},
                 new Object[]{configClass});
     }
 }

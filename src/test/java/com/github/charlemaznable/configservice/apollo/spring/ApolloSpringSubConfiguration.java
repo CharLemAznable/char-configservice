@@ -4,11 +4,11 @@ import com.github.charlemaznable.apollo.MockApolloServer;
 import com.github.charlemaznable.configservice.apollo.ApolloScan;
 import com.github.charlemaznable.configservice.test.TestWiredPropertyName;
 import com.github.charlemaznable.core.spring.ElvesImport;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.lang.reflect.Method;
 
 import static com.github.charlemaznable.configservice.apollo.ApolloFactory.apolloLoader;

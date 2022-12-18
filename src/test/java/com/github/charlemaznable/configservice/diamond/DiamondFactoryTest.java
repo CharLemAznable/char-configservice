@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DiamondFactoryTest {
 
-    private static DiamondLoader diamondLoader = DiamondFactory.diamondLoader(reflectFactory());
+    private static final DiamondLoader diamondLoader = DiamondFactory.diamondLoader(reflectFactory());
 
     @BeforeAll
     public static void beforeAll() {
@@ -113,13 +113,14 @@ public class DiamondFactoryTest {
     @SneakyThrows
     @Test
     public void testDiamond() {
-        MockDiamondServer.setConfigInfo("DEFAULT_GROUP", "DEFAULT_DATA", "" +
-                "name=John\nfull=${this.name} Doe\nlong=${this.full} Richard\n" +
-                "testMode=yes\ntestMode2=TRUE\n" +
-                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})\n" +
-                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.name}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.full}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})");
+        MockDiamondServer.setConfigInfo("DEFAULT_GROUP", "DEFAULT_DATA", """
+                name=John
+                full=${this.name} Doe
+                long=${this.full} Richard
+                testMode=yes
+                testMode2=TRUE
+                content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})
+                list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.name}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.full}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})""");
 
         val testDefault = diamondLoader.getDiamond(TestDefault.class);
         assertNotNull(testDefault);
@@ -192,6 +193,7 @@ public class DiamondFactoryTest {
                 properties.getProperty("list"));
 
         assertNotEquals(testDefault.hashCode(), testDefaultData.hashCode());
+        //noinspection AssertBetweenInconvertibleTypes
         assertNotEquals(testDefault, testDefaultData);
 
         val testDefaultDataEmpty = diamondLoader.getDiamond(TestDefaultDataEmpty.class);
@@ -241,13 +243,14 @@ public class DiamondFactoryTest {
 
     @Test
     public void testConfigGetterDefault() {
-        MockDiamondServer.setConfigInfo("DEF_GROUP", "DEF_DATA", "" +
-                "name=John\nfull=${this.name} Doe\nlong=${this.full} Richard\n" +
-                "testMode=yes\ntestMode2=TRUE\n" +
-                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})\n" +
-                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.name}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.full}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})");
+        MockDiamondServer.setConfigInfo("DEF_GROUP", "DEF_DATA", """
+                name=John
+                full=${this.name} Doe
+                long=${this.full} Richard
+                testMode=yes
+                testMode2=TRUE
+                content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})
+                list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.name}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.full}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${this.long})""");
 
         val testDefData = diamondLoader.getDiamond(TestDefData.class);
 
@@ -275,13 +278,15 @@ public class DiamondFactoryTest {
 
         awaitForMicros(TimeUnit.MILLISECONDS.toMicros(100));
 
-        MockDiamondServer.setConfigInfo("DEF_GROUP", "DEF_DATA", "# Toml\n" +
-                "name='John'\nfull='John Doe'\nlong='John Doe Richard'\n" +
-                "testMode='yes'\ntestMode2='TRUE'\n" +
-                "content='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John Doe Richard\")'\n" +
-                "list='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John\") " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John Doe\") " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John Doe Richard\")'");
+        MockDiamondServer.setConfigInfo("DEF_GROUP", "DEF_DATA", """
+                # Toml
+                name='John'
+                full='John Doe'
+                long='John Doe Richard'
+                testMode='yes'
+                testMode2='TRUE'
+                content='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John Doe Richard")'
+                list='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John") @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John Doe") @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John Doe Richard")'""");
 
         val testDefDataToml = diamondLoader.getDiamond(TestDefData.class);
 

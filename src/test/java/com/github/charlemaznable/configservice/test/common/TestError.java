@@ -9,6 +9,7 @@ import com.github.charlemaznable.configservice.diamond.DiamondConfig.GroupProvid
 
 import java.lang.reflect.Method;
 
+@SuppressWarnings("UnusedReturnValue")
 public interface TestError {
 
     @ApolloConfig(

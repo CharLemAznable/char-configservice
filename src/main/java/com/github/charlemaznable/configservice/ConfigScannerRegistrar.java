@@ -10,7 +10,7 @@ import static com.github.charlemaznable.core.spring.SpringFactory.springFactory;
 
 public final class ConfigScannerRegistrar extends SpringScannerRegistrar {
 
-    private static ConfigLoader loader = configLoader(springFactory());
+    private static final ConfigLoader loader = configLoader(springFactory());
 
     public ConfigScannerRegistrar() {
         super(ConfigScan.class, ConfigFactoryBean.class, configAnnotation(loader));

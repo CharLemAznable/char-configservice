@@ -10,7 +10,7 @@ import static com.github.charlemaznable.core.spring.SpringFactory.springFactory;
 
 public final class DiamondScannerRegistrar extends SpringScannerRegistrar {
 
-    private static DiamondLoader loader = diamondLoader(springFactory());
+    private static final DiamondLoader loader = diamondLoader(springFactory());
 
     public DiamondScannerRegistrar() {
         super(DiamondScan.class, DiamondFactoryBean.class, DiamondConfig.class);

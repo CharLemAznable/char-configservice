@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ApolloFactoryTest implements ConfigChangeListener {
 
-    private static ApolloLoader apolloLoader = ApolloFactory.apolloLoader(reflectFactory());
+    private static final ApolloLoader apolloLoader = ApolloFactory.apolloLoader(reflectFactory());
     private static boolean changed = false;
 
     @BeforeAll
@@ -155,13 +155,14 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         changed = false;
         // no substitute
-        MockApolloServer.addOrModifyProperty("application", "DEFAULT_DATA", "" +
-                "name=John\nfull=${name} Doe\nlong=${full} Richard\n" +
-                "testMode=yes\ntestMode2=TRUE\n" +
-                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})\n" +
-                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${name}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${full}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})");
+        MockApolloServer.addOrModifyProperty("application", "DEFAULT_DATA", """
+                name=John
+                full=${name} Doe
+                long=${full} Richard
+                testMode=yes
+                testMode2=TRUE
+                content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})
+                list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${name}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${full}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})""");
         await().forever().until(() -> changed);
 
         val testDefault = apolloLoader.getApollo(TestDefault.class);
@@ -235,6 +236,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
                 properties.getProperty("list"));
 
         assertNotEquals(testDefault.hashCode(), testDefaultData.hashCode());
+        //noinspection AssertBetweenInconvertibleTypes
         assertNotEquals(testDefault, testDefaultData);
 
         val testDefaultDataEmpty = apolloLoader.getApollo(TestDefaultDataEmpty.class);
@@ -300,13 +302,14 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         changed = false;
         // no substitute
-        MockApolloServer.addOrModifyProperty("DEF_GROUP", "DEF_DATA", "" +
-                "name=John\nfull=${name} Doe\nlong=${full} Richard\n" +
-                "testMode=yes\ntestMode2=TRUE\n" +
-                "content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})\n" +
-                "list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${name}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${full}) " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})");
+        MockApolloServer.addOrModifyProperty("DEF_GROUP", "DEF_DATA", """
+                name=John
+                full=${name} Doe
+                long=${full} Richard
+                testMode=yes
+                testMode2=TRUE
+                content=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})
+                list=@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${name}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${full}) @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(${long})""");
         await().forever().until(() -> changed);
 
         val testDefData = apolloLoader.getApollo(TestDefData.class);
@@ -336,13 +339,15 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         awaitForMicros(TimeUnit.MILLISECONDS.toMicros(100));
 
         changed = false;
-        MockApolloServer.addOrModifyProperty("DEF_GROUP", "DEF_DATA", "# Toml\n" +
-                "name='John'\nfull='John Doe'\nlong='John Doe Richard'\n" +
-                "testMode='yes'\ntestMode2='TRUE'\n" +
-                "content='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John Doe Richard\")'\n" +
-                "list='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John\") " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John Doe\") " +
-                "@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean(\"John Doe Richard\")'");
+        MockApolloServer.addOrModifyProperty("DEF_GROUP", "DEF_DATA", """
+                # Toml
+                name='John'
+                full='John Doe'
+                long='John Doe Richard'
+                testMode='yes'
+                testMode2='TRUE'
+                content='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John Doe Richard")'
+                list='@com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John") @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John Doe") @com.github.charlemaznable.configservice.test.common.TestDefaultContentBean("John Doe Richard")'""");
         await().forever().until(() -> changed);
 
         val testDefDataToml = apolloLoader.getApollo(TestDefData.class);

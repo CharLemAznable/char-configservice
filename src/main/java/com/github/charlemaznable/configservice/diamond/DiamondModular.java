@@ -14,7 +14,7 @@ import static java.util.Objects.nonNull;
 public final class DiamondModular extends CommonModular<DiamondModular> {
 
     @Delegate
-    private DiamondLoader loader;
+    private final DiamondLoader loader;
 
     public DiamondModular(Module... modules) {
         this(newArrayList(modules));

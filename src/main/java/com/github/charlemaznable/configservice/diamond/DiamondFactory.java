@@ -38,8 +38,8 @@ import static org.springframework.core.annotation.AnnotatedElementUtils.getMerge
 @NoArgsConstructor(access = PRIVATE)
 public final class DiamondFactory {
 
-    private static LoadingCache<Factory, DiamondLoader> loaderCache
-            = simpleCache(from(DiamondLoader::new));
+    private static final LoadingCache<Factory, DiamondLoader>
+            loaderCache = simpleCache(from(DiamondLoader::new));
 
     public static <T> T getDiamond(Class<T> configClass) {
         return diamondLoader(FactoryContext.get()).getDiamond(configClass);

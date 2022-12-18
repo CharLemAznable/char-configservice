@@ -38,8 +38,8 @@ import static org.springframework.core.annotation.AnnotatedElementUtils.getMerge
 @NoArgsConstructor(access = PRIVATE)
 public final class ApolloFactory {
 
-    private static LoadingCache<Factory, ApolloLoader> loaderCache
-            = simpleCache(from(ApolloLoader::new));
+    private static final LoadingCache<Factory, ApolloLoader>
+            loaderCache = simpleCache(from(ApolloLoader::new));
 
     public static <T> T getApollo(Class<T> configClass) {
         return apolloLoader(FactoryContext.get()).getApollo(configClass);

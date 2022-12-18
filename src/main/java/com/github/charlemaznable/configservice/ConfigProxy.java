@@ -1,6 +1,7 @@
 package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.elf.ConfigDummy;
+import com.github.charlemaznable.core.lang.BuddyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
 import lombok.AllArgsConstructor;
@@ -8,21 +9,20 @@ import lombok.Getter;
 import lombok.val;
 import net.jodah.expiringmap.ExpiringMap;
 import net.jodah.expiringmap.ExpiringValue;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 import static com.github.charlemaznable.configservice.elf.ConfigServiceElf.convertType;
 import static com.github.charlemaznable.core.lang.ExpiringMapp.expiringMap;
 import static java.util.Objects.nonNull;
 
-public abstract class ConfigProxy<T> implements MethodInterceptor {
+public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
 
     protected final Class<T> configClass;
     protected final Factory factory;
     protected final ConfigLoader configLoader;
-    private ExpiringMap<Method, ConfigEntry> entryCache
+    private final ExpiringMap<Method, ConfigEntry> entryCache
             = expiringMap(ExpiringEntryLoaderr.from(this::loadConfigEntry));
 
     public ConfigProxy(Class<T> configClass, Factory factory, ConfigLoader configLoader) {
@@ -32,10 +32,10 @@ public abstract class ConfigProxy<T> implements MethodInterceptor {
     }
 
     @Override
-    public Object intercept(Object o, Method method, Object[] args,
-                            MethodProxy methodProxy) throws Throwable {
+    public Object invoke(Method method, Object[] args,
+                         Callable<Object> superCall) throws Exception {
         if (method.getDeclaringClass().equals(ConfigDummy.class)) {
-            return methodProxy.invokeSuper(o, args);
+            return superCall.call();
         }
 
         if (method.getDeclaringClass().equals(ConfigGetter.class)) {

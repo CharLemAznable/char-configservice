@@ -10,7 +10,7 @@ import static com.github.charlemaznable.core.spring.SpringFactory.springFactory;
 
 public final class ApolloScannerRegistrar extends SpringScannerRegistrar {
 
-    private static ApolloLoader loader = apolloLoader(springFactory());
+    private static final ApolloLoader loader = apolloLoader(springFactory());
 
     public ApolloScannerRegistrar() {
         super(ApolloScan.class, ApolloFactoryBean.class, ApolloConfig.class);

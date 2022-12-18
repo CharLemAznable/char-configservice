@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 
 public class TestDefaultWiredProvider implements DiamondConfig.DefaultValueProvider, ApolloConfig.DefaultValueProvider {
 
-    private String init;
+    private final String init;
 
     public TestDefaultWiredProvider() {
         if (FactoryContext.get() instanceof SpringFactory) {

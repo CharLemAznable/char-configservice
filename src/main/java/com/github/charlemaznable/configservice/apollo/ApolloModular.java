@@ -14,7 +14,7 @@ import static java.util.Objects.nonNull;
 public final class ApolloModular extends CommonModular<ApolloModular> {
 
     @Delegate
-    private ApolloLoader loader;
+    private final ApolloLoader loader;
 
     public ApolloModular(Module... modules) {
         this(newArrayList(modules));
