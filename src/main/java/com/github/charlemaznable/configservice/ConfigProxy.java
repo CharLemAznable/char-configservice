@@ -1,6 +1,5 @@
 package com.github.charlemaznable.configservice;
 
-import com.github.charlemaznable.configservice.elf.ConfigDummy;
 import com.github.charlemaznable.core.lang.BuddyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
@@ -32,12 +31,7 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
     }
 
     @Override
-    public Object invoke(Method method, Object[] args,
-                         Callable<Object> superCall) throws Exception {
-        if (method.getDeclaringClass().equals(ConfigDummy.class)) {
-            return superCall.call();
-        }
-
+    public Object invoke(Method method, Object[] args, Callable<Object> superCall) throws Exception {
         if (method.getDeclaringClass().equals(ConfigGetter.class)) {
             return method.invoke(configLoader.getConfigGetter(configClass), args);
         }
