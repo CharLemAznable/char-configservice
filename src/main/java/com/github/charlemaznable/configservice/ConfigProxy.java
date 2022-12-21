@@ -10,7 +10,6 @@ import net.jodah.expiringmap.ExpiringMap;
 import net.jodah.expiringmap.ExpiringValue;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
 
 import static com.github.charlemaznable.configservice.elf.ConfigServiceElf.convertType;
 import static com.github.charlemaznable.core.lang.ExpiringMapp.expiringMap;
@@ -31,7 +30,9 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
     }
 
     @Override
-    public Object invoke(Method method, Object[] args, Callable<Object> superCall) throws Exception {
+    public Object invoke(BuddyEnhancer.Invocation invocation) throws Exception {
+        val method = invocation.getMethod();
+        val args = invocation.getArguments();
         if (method.getDeclaringClass().equals(ConfigGetter.class)) {
             return method.invoke(configLoader.getConfigGetter(configClass), args);
         }

@@ -52,14 +52,15 @@ public abstract class ConfigLoader {
 
         val configProxy = buildConfigProxy(configClass, factory);
         return BuddyEnhancer.create(ConfigDummy.class,
+                new Object[]{configClass},
                 new Class[]{configClass, ConfigGetter.class},
-                method -> {
-                    if (method.isDefault() || method.getDeclaringClass()
-                            .equals(ConfigDummy.class)) return 1;
+                invocation -> {
+                    if (invocation.getMethod().isDefault() ||
+                            invocation.getMethod().getDeclaringClass()
+                                    .equals(ConfigDummy.class)) return 1;
                     return 0;
                 },
-                new BuddyEnhancer.Delegate[]{configProxy, BuddyEnhancer.CallSuper},
-                new Object[]{configClass});
+                new BuddyEnhancer.Delegate[]{configProxy, BuddyEnhancer.CALL_SUPER});
     }
 
     @AllArgsConstructor
