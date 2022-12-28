@@ -1,10 +1,10 @@
 package com.github.charlemaznable.configservice;
 
-import com.github.charlemaznable.configservice.elf.ConfigDummy;
 import com.github.charlemaznable.core.lang.EasyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
 import com.google.common.cache.LoadingCache;
+import lombok.AllArgsConstructor;
 import lombok.val;
 import net.jodah.expiringmap.ExpiringMap;
 import net.jodah.expiringmap.ExpiringValue;
@@ -24,9 +24,9 @@ import static com.google.common.cache.CacheLoader.from;
 public abstract class ConfigLoader {
 
     protected final Factory factory;
-    private LoadingCache<Class, Object> configCache
+    private final LoadingCache<Class<?>, Object> configCache
             = simpleCache(from(this::loadConfig));
-    private ExpiringMap<Class, ConfigGetter> configGetterCache
+    private final ExpiringMap<Class<?>, ConfigGetter> configGetterCache
             = expiringMap(ExpiringEntryLoaderr.from(this::loadConfigGetter));
 
     public ConfigLoader(Factory factory) {
@@ -56,10 +56,33 @@ public abstract class ConfigLoader {
         return EasyEnhancer.create(ConfigDummy.class,
                 new Class[]{configClass, ConfigGetter.class},
                 method -> {
-                    if (method.isDefault()) return 1;
+                    if (method.isDefault() || method.getDeclaringClass()
+                            .equals(ConfigDummy.class)) return 1;
                     return 0;
                 },
                 new Callback[]{configProxy, NoOp.INSTANCE},
                 new Object[]{configClass});
+    }
+
+    @AllArgsConstructor
+    private static class ConfigDummy {
+
+        @Nonnull
+        private Class<?> implClass;
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof ConfigDummy && hashCode() == obj.hashCode();
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(this);
+        }
+
+        @Override
+        public String toString() {
+            return "ConfigService:" + implClass.getSimpleName() + "@" + Integer.toHexString(hashCode());
+        }
     }
 }

@@ -11,9 +11,9 @@ import static com.github.charlemaznable.core.spring.SpringFactory.springFactory;
 
 public class TestApolloDefaultInContext implements DefaultValueProvider {
 
-    private TestDefaultWired current;
-    private TestDefaultWired spring;
-    private TestDefaultWired guice;
+    private final TestDefaultWired current;
+    private final TestDefaultWired spring;
+    private final TestDefaultWired guice;
 
     public TestApolloDefaultInContext() {
         this.current = getApollo(TestDefaultWired.class);

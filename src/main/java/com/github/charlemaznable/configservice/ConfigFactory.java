@@ -15,6 +15,7 @@ import static com.github.charlemaznable.configservice.diamond.DiamondFactory.dia
 import static com.github.charlemaznable.configservice.elf.ConfigServiceElf.substitute;
 import static lombok.AccessLevel.PRIVATE;
 
+@SuppressWarnings("FieldMayBeFinal")
 @NoArgsConstructor(access = PRIVATE)
 public final class ConfigFactory {
 

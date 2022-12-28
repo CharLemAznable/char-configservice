@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ApolloFactoryTest implements ConfigChangeListener {
 
-    private static ApolloLoader apolloLoader = ApolloFactory.apolloLoader(reflectFactory());
+    private static final ApolloLoader apolloLoader = ApolloFactory.apolloLoader(reflectFactory());
     private static boolean changed = false;
 
     @BeforeAll
@@ -235,6 +235,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
                 properties.getProperty("list"));
 
         assertNotEquals(testDefault.hashCode(), testDefaultData.hashCode());
+        //noinspection AssertBetweenInconvertibleTypes
         assertNotEquals(testDefault, testDefaultData);
 
         val testDefaultDataEmpty = apolloLoader.getApollo(TestDefaultDataEmpty.class);

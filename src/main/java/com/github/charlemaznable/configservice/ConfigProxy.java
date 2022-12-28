@@ -1,6 +1,5 @@
 package com.github.charlemaznable.configservice;
 
-import com.github.charlemaznable.configservice.elf.ConfigDummy;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
 import lombok.AllArgsConstructor;
@@ -22,7 +21,7 @@ public abstract class ConfigProxy<T> implements MethodInterceptor {
     protected final Class<T> configClass;
     protected final Factory factory;
     protected final ConfigLoader configLoader;
-    private ExpiringMap<Method, ConfigEntry> entryCache
+    private final ExpiringMap<Method, ConfigEntry> entryCache
             = expiringMap(ExpiringEntryLoaderr.from(this::loadConfigEntry));
 
     public ConfigProxy(Class<T> configClass, Factory factory, ConfigLoader configLoader) {
@@ -34,10 +33,6 @@ public abstract class ConfigProxy<T> implements MethodInterceptor {
     @Override
     public Object intercept(Object o, Method method, Object[] args,
                             MethodProxy methodProxy) throws Throwable {
-        if (method.getDeclaringClass().equals(ConfigDummy.class)) {
-            return methodProxy.invokeSuper(o, args);
-        }
-
         if (method.getDeclaringClass().equals(ConfigGetter.class)) {
             return method.invoke(configLoader.getConfigGetter(configClass), args);
         }

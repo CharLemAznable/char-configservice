@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DiamondFactoryTest {
 
-    private static DiamondLoader diamondLoader = DiamondFactory.diamondLoader(reflectFactory());
+    private static final DiamondLoader diamondLoader = DiamondFactory.diamondLoader(reflectFactory());
 
     @BeforeAll
     public static void beforeAll() {
@@ -192,6 +192,7 @@ public class DiamondFactoryTest {
                 properties.getProperty("list"));
 
         assertNotEquals(testDefault.hashCode(), testDefaultData.hashCode());
+        //noinspection AssertBetweenInconvertibleTypes
         assertNotEquals(testDefault, testDefaultData);
 
         val testDefaultDataEmpty = diamondLoader.getDiamond(TestDefaultDataEmpty.class);

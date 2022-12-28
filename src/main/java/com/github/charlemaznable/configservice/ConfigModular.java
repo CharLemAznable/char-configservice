@@ -14,7 +14,7 @@ import static java.util.Objects.nonNull;
 public final class ConfigModular extends CommonModular<ConfigModular> {
 
     @Delegate
-    private ConfigLoader loader;
+    private final ConfigLoader loader;
 
     public ConfigModular(Module... modules) {
         this(newArrayList(modules));
