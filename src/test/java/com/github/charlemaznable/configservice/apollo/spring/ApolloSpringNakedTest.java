@@ -9,11 +9,9 @@ import com.github.charlemaznable.configservice.test.TestWiredNone;
 import com.github.charlemaznable.core.spring.SpringContext;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static com.github.charlemaznable.configservice.apollo.ApolloFactory.getApollo;
 import static org.awaitility.Awaitility.await;
@@ -23,8 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ApolloSpringNakedConfiguration.class)
+@SpringJUnitConfig(ApolloSpringNakedConfiguration.class)
 public class ApolloSpringNakedTest {
 
     @Test
