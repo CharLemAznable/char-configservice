@@ -71,7 +71,7 @@ public final class ApolloFactory {
         }
 
         @Override
-        public <T> Config fetchConfigAnno(AnnotatedElement element) {
+        public Config fetchConfigAnno(AnnotatedElement element) {
             val apolloConfig = getMergedAnnotation(element, ApolloConfig.class);
             if (isNull(apolloConfig)) return super.fetchConfigAnno(element);
             return ConfigImpl.builder()

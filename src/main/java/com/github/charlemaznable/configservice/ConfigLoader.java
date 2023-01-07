@@ -61,7 +61,7 @@ public abstract class ConfigLoader {
 
     protected abstract <T> ConfigProxy<T> buildConfigProxy(Class<T> configClass, Factory factory);
 
-    public <T> Config fetchConfigAnno(AnnotatedElement element) {
+    public Config fetchConfigAnno(AnnotatedElement element) {
         return getMergedAnnotation(element, Config.class);
     }
 
