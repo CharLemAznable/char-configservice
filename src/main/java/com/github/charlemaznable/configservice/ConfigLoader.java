@@ -50,9 +50,7 @@ public abstract class ConfigLoader {
         return configGetterCache.get(configClass);
     }
 
-    public Class<? extends Annotation>[] annotationClasses() {
-        return new Class[]{Config.class};
-    }
+    public abstract Class<? extends Annotation>[] annotationClasses();
 
     protected void checkClassConfig(Class<?> configClass) {
         if (isAnnotated(configClass, Config.class)) return;
