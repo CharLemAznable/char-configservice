@@ -563,7 +563,7 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配
 
 #### 9. 兼容使用apollo/diamond
 
-配置客户端接口同时添加```@ApolloConfig```和```@DiamondConfig```注解.
+配置客户端接口同时添加```@ApolloConfig```和```@DiamondConfig```注解, 或添加```@Config```注解.
 
 使用```ConfigFactory.getConfig()```方法获取客户端实例.
 
@@ -584,10 +584,10 @@ ConfigService=apollo
 
 使用```@ApolloScan```/```@DiamondScan```/```@ConfigScan```指定扫描加载包路径.
 
-包路径中所有添加```@ApolloConfig```/```@DiamondConfig```注解的接口都将生成对应的配置客户端实例并注入SpringContext.
+包路径中所有添加```@ApolloConfig```/```@DiamondConfig```/```@Config```注解的接口都将生成对应的配置客户端实例并注入SpringContext.
 
 #### 11. 在Guice中使用
 
-使用```ApolloModular```/```DiamondModular```按类或包路径扫描加载.
+使用```ApolloModular```/```DiamondModular```/```ConfigModular```按类或包路径扫描加载.
 
 创建的```Module```中将包含对应的配置客户端实例.

@@ -1,39 +1,33 @@
 package com.github.charlemaznable.configservice.diamond;
 
+import com.github.charlemaznable.configservice.Config;
 import com.github.charlemaznable.configservice.ConfigGetter;
 import com.github.charlemaznable.configservice.ConfigLoader;
 import com.github.charlemaznable.configservice.ConfigProxy;
-import com.github.charlemaznable.configservice.annotation.DefaultEmptyValue;
-import com.github.charlemaznable.configservice.diamond.DiamondConfig.DataIdProvider;
-import com.github.charlemaznable.configservice.diamond.DiamondConfig.DefaultValueProvider;
-import com.github.charlemaznable.configservice.diamond.DiamondConfig.GroupProvider;
-import com.github.charlemaznable.configservice.elf.ConfigServiceException;
+import com.github.charlemaznable.configservice.elf.ConfigImpl;
+import com.github.charlemaznable.configservice.elf.ConfigSetting;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.Factory;
 import com.google.common.cache.LoadingCache;
 import lombok.NoArgsConstructor;
 import lombok.val;
-import net.jodah.expiringmap.ExpiringValue;
 import org.n3r.diamond.client.AbstractMiner;
 import org.n3r.diamond.client.Miner;
 import org.n3r.diamond.client.impl.PropertiesBasedMiner;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 import static com.github.charlemaznable.configservice.elf.ConfigServiceElf.parseStringToProperties;
-import static com.github.charlemaznable.configservice.elf.ConfigServiceElf.substitute;
 import static com.github.charlemaznable.core.lang.Condition.blankThen;
-import static com.github.charlemaznable.core.lang.Condition.checkNotNull;
 import static com.github.charlemaznable.core.lang.LoadingCachee.get;
 import static com.github.charlemaznable.core.lang.LoadingCachee.simpleCache;
 import static com.github.charlemaznable.core.lang.Str.isBlank;
-import static com.github.charlemaznable.core.spring.AnnotationElf.findAnnotation;
 import static com.google.common.cache.CacheLoader.from;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.core.annotation.AnnotatedElementUtils.getMergedAnnotation;
+import static org.springframework.core.annotation.AnnotatedElementUtils.isAnnotated;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class DiamondFactory {
@@ -59,10 +53,16 @@ public final class DiamondFactory {
             return getConfig(configClass);
         }
 
+        @SuppressWarnings("unchecked")
+        @Override
+        public Class<? extends Annotation>[] annotationClasses() {
+            return new Class[]{Config.class, DiamondConfig.class};
+        }
+
         @Override
         protected void checkClassConfig(Class<?> configClass) {
-            checkNotNull(findAnnotation(configClass, DiamondConfig.class),
-                    new ConfigServiceException(configClass + " has no DiamondConfig"));
+            if (isAnnotated(configClass, DiamondConfig.class)) return;
+            super.checkClassConfig(configClass);
         }
 
         @Override
@@ -71,32 +71,39 @@ public final class DiamondFactory {
         }
 
         @Override
-        protected <T> ExpiringValue<ConfigGetter> loadConfigGetter(Class<T> configClass) {
-            val diamondConfig = checkDiamondConfig(configClass);
-            val group = checkDiamondGroup(configClass, diamondConfig);
-            val dataId = checkDiamondDataId(configClass, diamondConfig);
-            val cacheSeconds = Math.max(0, diamondConfig.cacheSeconds());
+        public Config fetchConfigAnno(AnnotatedElement element) {
+            val diamondConfig = getMergedAnnotation(element, DiamondConfig.class);
+            if (isNull(diamondConfig)) return super.fetchConfigAnno(element);
+            return ConfigImpl.builder()
+                    .keyset(diamondConfig.group())
+                    .key(diamondConfig.dataId())
+                    .value(diamondConfig.value())
+                    .defaultValue(diamondConfig.defaultValue())
+                    .cacheSeconds(diamondConfig.cacheSeconds())
+                    .keysetProvider(diamondConfig.groupProvider())
+                    .keyProvider(diamondConfig.dataIdProvider())
+                    .defaultValueProvider(diamondConfig.defaultValueProvider()).build();
+        }
 
+        @Override
+        protected ConfigGetter buildConfigGetter(ConfigSetting configSetting) {
+            val group = configSetting.keyset();
+            val dataId = configSetting.key();
             val miner = new Miner(blankThen(group, () -> "DEFAULT_GROUP"));
-            val configGetter = new DiamondConfigGetter(isBlank(dataId) ? miner :
+            return new DiamondConfigGetter(isBlank(dataId) ? miner :
                     new PropertiesBasedMiner(parseStringToProperties(miner.getString(dataId), dataId)));
-            return new ExpiringValue<>(configGetter, cacheSeconds, TimeUnit.SECONDS);
         }
 
-        private <T> DiamondConfig checkDiamondConfig(Class<T> configClass) {
-            return checkNotNull(getMergedAnnotation(configClass, DiamondConfig.class));
+        @Override
+        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
+            return super.ignoredKeysetProvider(providerClass) ||
+                    DiamondConfig.GroupProvider.class == providerClass;
         }
 
-        private <T> String checkDiamondGroup(Class<T> configClass, DiamondConfig diamondConfig) {
-            val providerClass = diamondConfig.groupProvider();
-            return substitute(GroupProvider.class == providerClass ? diamondConfig.group()
-                    : FactoryContext.apply(factory, providerClass, p -> p.group(configClass)));
-        }
-
-        private <T> String checkDiamondDataId(Class<T> configClass, DiamondConfig diamondConfig) {
-            val providerClass = diamondConfig.dataIdProvider();
-            return substitute(DataIdProvider.class == providerClass ? diamondConfig.dataId()
-                    : FactoryContext.apply(factory, providerClass, p -> p.dataId(configClass)));
+        @Override
+        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
+            return super.ignoredKeyProvider(providerClass) ||
+                    DiamondConfig.DataIdProvider.class == providerClass;
         }
     }
 
@@ -107,56 +114,33 @@ public final class DiamondFactory {
         }
 
         @Override
-        protected ExpiringValue<ConfigEntry> loadConfigEntry(Method method) {
-            val minerConfig = getMergedAnnotation(method, DiamondConfig.class);
-            val group = checkDiamondGroup(method, minerConfig);
-            val dataId = checkDiamondDataId(method, minerConfig);
-            val defaultEmptyValue = nonNull(findAnnotation(method, DefaultEmptyValue.class));
-            val defaultValue = checkDiamondDefaultValue(method, minerConfig, defaultEmptyValue);
-            val cacheSeconds = checkDiamondCacheSeconds(minerConfig);
-            val configGetter = (DiamondConfigGetter) configLoader.getConfigGetter(configClass);
-            val minerable = configGetter.getMinerable();
+        protected String loadConfigValue(ConfigGetter configGetter, ConfigSetting configSetting) {
+            val minerable = ((DiamondConfigGetter) configGetter).getMinerable();
             // group blank:
             //   if minerable instanceof AbstractMiner
             //     use its defaultGroupName
             //   else do nothing
-            String stoneGroup = blankThen(group, () -> minerable instanceof AbstractMiner ?
-                    ((AbstractMiner) minerable).getDefaultGroupName() : group);
-            String stoneDataId = blankThen(dataId, method::getName);
-            String stone = minerable.getStone(stoneGroup, stoneDataId);
-            return new ExpiringValue<>(new ConfigEntry(stoneDataId,
-                    stone, defaultValue), cacheSeconds, TimeUnit.SECONDS);
+            String stoneGroup = blankThen(configSetting.keyset(), () -> minerable instanceof AbstractMiner ?
+                    ((AbstractMiner) minerable).getDefaultGroupName() : configSetting.keyset());
+            return minerable.getStone(stoneGroup, configSetting.key());
         }
 
-        private String checkDiamondGroup(Method method, DiamondConfig diamondConfig) {
-            if (isNull(diamondConfig)) return "";
-            val providerClass = diamondConfig.groupProvider();
-            return substitute(GroupProvider.class == providerClass ? diamondConfig.group()
-                    : FactoryContext.apply(factory, providerClass, p -> p.group(configClass, method)));
+        @Override
+        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
+            return super.ignoredKeysetProvider(providerClass) ||
+                    DiamondConfig.GroupProvider.class == providerClass;
         }
 
-        private String checkDiamondDataId(Method method, DiamondConfig diamondConfig) {
-            if (isNull(diamondConfig)) return "";
-            val providerClass = diamondConfig.dataIdProvider();
-            return substitute(DataIdProvider.class == providerClass ? diamondConfig.dataId()
-                    : FactoryContext.apply(factory, providerClass, p -> p.dataId(configClass, method)));
+        @Override
+        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
+            return super.ignoredKeyProvider(providerClass) ||
+                    DiamondConfig.DataIdProvider.class == providerClass;
         }
 
-        @SuppressWarnings("Duplicates")
-        private String checkDiamondDefaultValue(Method method, DiamondConfig diamondConfig, boolean defaultEmptyValue) {
-            if (isNull(diamondConfig)) return defaultEmptyValue ? "" : null;
-            val providerClass = diamondConfig.defaultValueProvider();
-            String defaultValue = diamondConfig.defaultValue();
-            if (DefaultValueProvider.class != providerClass) {
-                defaultValue = FactoryContext.apply(factory, providerClass,
-                        p -> p.defaultValue(configClass, method));
-            }
-            return substitute(blankThen(defaultValue, () -> defaultEmptyValue ? "" : null));
-        }
-
-        private long checkDiamondCacheSeconds(DiamondConfig diamondConfig) {
-            if (isNull(diamondConfig)) return 0;
-            return Math.max(0, diamondConfig.cacheSeconds());
+        @Override
+        protected boolean ignoredDefaultValueProvider(Class<? extends Config.DefaultValueProvider> providerClass) {
+            return super.ignoredDefaultValueProvider(providerClass) ||
+                    DiamondConfig.DefaultValueProvider.class == providerClass;
         }
     }
 }

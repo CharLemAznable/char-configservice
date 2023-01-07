@@ -1,5 +1,6 @@
 package com.github.charlemaznable.configservice.diamond;
 
+import com.github.charlemaznable.configservice.Config;
 import com.github.charlemaznable.configservice.elf.ConfigServiceException;
 import org.springframework.core.annotation.AliasFor;
 
@@ -42,7 +43,7 @@ public @interface DiamondConfig {
 
     Class<? extends DefaultValueProvider> defaultValueProvider() default DefaultValueProvider.class;
 
-    interface GroupProvider {
+    interface GroupProvider extends Config.KeysetProvider {
 
         default String group(Class<?> configClass) {
             throw new ConfigServiceException(this.getClass().getName()
@@ -53,9 +54,19 @@ public @interface DiamondConfig {
             throw new ConfigServiceException(this.getClass().getName()
                     + "#group(Class<?>, Method) need be overwritten");
         }
+
+        @Override
+        default String keyset(Class<?> configClass) {
+            return group(configClass);
+        }
+
+        @Override
+        default String keyset(Class<?> configClass, Method method) {
+            return group(configClass, method);
+        }
     }
 
-    interface DataIdProvider {
+    interface DataIdProvider extends Config.KeyProvider {
 
         default String dataId(Class<?> configClass) {
             throw new ConfigServiceException(this.getClass().getName()
@@ -66,13 +77,18 @@ public @interface DiamondConfig {
             throw new ConfigServiceException(this.getClass().getName()
                     + "#dataId(Class<?>, Method) need be overwritten");
         }
+
+        @Override
+        default String key(Class<?> configClass) {
+            return dataId(configClass);
+        }
+
+        @Override
+        default String key(Class<?> configClass, Method method) {
+            return dataId(configClass, method);
+        }
     }
 
-    interface DefaultValueProvider {
-
-        default String defaultValue(Class<?> configClass, Method method) {
-            throw new ConfigServiceException(this.getClass().getName()
-                    + "#defaultValue(Class<?>, Method) need be overwritten");
-        }
+    interface DefaultValueProvider extends Config.DefaultValueProvider {
     }
 }
