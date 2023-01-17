@@ -1,37 +1,21 @@
 package com.github.charlemaznable.configservice.diamond;
 
-import com.github.charlemaznable.configservice.diamond.DiamondFactory.DiamondLoader;
-import com.github.charlemaznable.core.guice.CommonModular;
+import com.github.charlemaznable.configservice.impl.AbstractConfigModular;
 import com.google.inject.Module;
-import com.google.inject.Provider;
-import lombok.experimental.Delegate;
 
-import static com.github.charlemaznable.configservice.diamond.DiamondFactory.diamondLoader;
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
-import static com.github.charlemaznable.core.spring.AnnotationElf.findAnnotation;
-import static java.util.Objects.nonNull;
 
-public final class DiamondModular extends CommonModular<DiamondModular> {
-
-    @Delegate
-    private final DiamondLoader loader;
+public final class DiamondModular extends AbstractConfigModular<DiamondModular> {
 
     public DiamondModular(Module... modules) {
         this(newArrayList(modules));
     }
 
     public DiamondModular(Iterable<? extends Module> modules) {
-        super(modules);
-        this.loader = diamondLoader(guiceFactory);
+        super(modules, DiamondFactory::diamondLoader);
     }
 
-    @Override
-    public boolean isCandidateClass(Class<?> clazz) {
-        return nonNull(findAnnotation(clazz, DiamondConfig.class));
-    }
-
-    @Override
-    public <T> Provider<T> createProvider(Class<T> clazz) {
-        return () -> getDiamond(clazz);
+    public <T> T getDiamond(Class<T> configClass) {
+        return getConfig(configClass);
     }
 }

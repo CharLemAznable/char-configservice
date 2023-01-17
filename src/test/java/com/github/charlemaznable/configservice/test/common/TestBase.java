@@ -1,5 +1,6 @@
 package com.github.charlemaznable.configservice.test.common;
 
+import com.github.charlemaznable.configservice.Config;
 import com.github.charlemaznable.configservice.apollo.ApolloConfig;
 import com.github.charlemaznable.configservice.diamond.DiamondConfig;
 
@@ -7,11 +8,9 @@ import com.github.charlemaznable.configservice.diamond.DiamondConfig;
 @DiamondConfig
 public interface TestBase {
 
-    @ApolloConfig("base.data")
-    @DiamondConfig("base.data")
+    @Config("base.data")
     String abc();
 
-    @ApolloConfig(namespace = "base.group", propertyName = "base.data")
-    @DiamondConfig(group = "base.group", dataId = "base.data")
+    @Config(keyset = "base.group", key = "base.data")
     String xyz();
 }

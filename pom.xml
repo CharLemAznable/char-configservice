@@ -48,8 +48,6 @@
         <sonar.projectKey>CharLemAznable_char-configservice</sonar.projectKey>
 
         <char-elves.version>2023.0.0-SNAPSHOT</char-elves.version>
-        <es-config-elves.version>2023.0.0-SNAPSHOT</es-config-elves.version>
-        <vertx-config-elves.version>2023.0.0-SNAPSHOT</vertx-config-elves.version>
 
         <apollo-mockserver.version>2023.0.0-SNAPSHOT</apollo-mockserver.version>
         <logback-dendrobe.version>2023.0.0-SNAPSHOT</logback-dendrobe.version>
@@ -70,16 +68,6 @@
             <groupId>com.github.charlemaznable</groupId>
             <artifactId>char-elves</artifactId>
             <version>${char-elves.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.charlemaznable</groupId>
-            <artifactId>es-config-elves</artifactId>
-            <version>${es-config-elves.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.charlemaznable</groupId>
-            <artifactId>vertx-config-elves</artifactId>
-            <version>${vertx-config-elves.version}</version>
         </dependency>
         <dependency>
             <groupId>com.moandjiezana.toml</groupId>

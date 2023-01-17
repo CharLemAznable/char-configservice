@@ -1,11 +1,11 @@
 package com.github.charlemaznable.configservice.test.common;
 
-import com.github.charlemaznable.configservice.annotation.ConfigValueParse;
-import com.github.charlemaznable.configservice.annotation.ConfigValueParse.ConfigValueParser;
+import com.github.charlemaznable.configservice.annotation.ConfigValueParseBy;
+import com.github.charlemaznable.configservice.annotation.ConfigValueParseBy.ConfigValueParser;
 import com.github.charlemaznable.configservice.apollo.ApolloConfig;
 import com.github.charlemaznable.configservice.diamond.DiamondConfig;
-import com.github.charlemaznable.configservice.impl.EsConfigParser;
-import com.github.charlemaznable.configservice.impl.VertxOptionsParser;
+import com.github.charlemaznable.configservice.impl.ParseAsEsConfig;
+import com.github.charlemaznable.configservice.impl.ParseAsVertxOptions;
 import com.github.charlemaznable.core.es.EsConfig;
 import io.vertx.core.VertxOptions;
 
@@ -21,17 +21,17 @@ public interface TestParseData {
 
     @ApolloConfig("PARSE_DATA")
     @DiamondConfig("PARSE_DATA")
-    @ConfigValueParse(ConfigValueParser.class)
+    @ConfigValueParseBy(ConfigValueParser.class)
     Properties properties();
 
     @ApolloConfig("PARSE_DATA")
     @DiamondConfig("PARSE_DATA")
-    @ConfigValueParse(VertxOptionsParser.class)
+    @ParseAsVertxOptions
     VertxOptions vertxOptions();
 
     @ApolloConfig("PARSE_DATA")
     @DiamondConfig("PARSE_DATA")
-    @ConfigValueParse(EsConfigParser.class)
+    @ParseAsEsConfig
     EsConfig esConfig();
 
     @ApolloConfig("PARSE_DATA")

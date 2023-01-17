@@ -1,7 +1,6 @@
 package com.github.charlemaznable.configservice.elf;
 
-import com.github.charlemaznable.configservice.annotation.ConfigValueParse;
-import com.github.charlemaznable.configservice.annotation.ConfigValueParse.ConfigValueParser;
+import com.github.charlemaznable.configservice.annotation.ConfigValueParseBy;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.Factory;
 import com.google.common.primitives.Primitives;
@@ -60,10 +59,10 @@ public final class ConfigServiceElf {
         if (rt == String.class) return value;
         if (rt.isPrimitive()) return parsePrimitive(rt, value);
 
-        val configValueParse = getMergedAnnotation(method, ConfigValueParse.class);
+        val configValueParse = getMergedAnnotation(method, ConfigValueParseBy.class);
         if (nonNull(configValueParse)) {
             val parserClass = configValueParse.value();
-            if (ConfigValueParser.class != parserClass) {
+            if (ConfigValueParseBy.ConfigValueParser.class != parserClass) {
                 return FactoryContext.apply(factory, parserClass,
                         parser -> parser.parse(value, rt));
             }

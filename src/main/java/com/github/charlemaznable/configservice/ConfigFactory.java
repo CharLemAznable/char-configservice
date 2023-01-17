@@ -1,14 +1,9 @@
 package com.github.charlemaznable.configservice;
 
-import com.github.charlemaznable.configservice.apollo.ApolloConfig;
-import com.github.charlemaznable.configservice.apollo.ApolloFactory.ApolloLoader;
-import com.github.charlemaznable.configservice.diamond.DiamondConfig;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.ClzPath;
 import com.github.charlemaznable.core.lang.Factory;
 import lombok.NoArgsConstructor;
-
-import java.lang.annotation.Annotation;
 
 import static com.github.charlemaznable.configservice.apollo.ApolloFactory.apolloLoader;
 import static com.github.charlemaznable.configservice.diamond.DiamondFactory.diamondLoader;
@@ -46,9 +41,5 @@ public final class ConfigFactory {
         else {
             throw new IllegalStateException("Neither Apollo nor Diamond found.");
         }
-    }
-
-    public static Class<? extends Annotation> configAnnotation(ConfigLoader configLoader) {
-        return configLoader instanceof ApolloLoader ? ApolloConfig.class : DiamondConfig.class;
     }
 }

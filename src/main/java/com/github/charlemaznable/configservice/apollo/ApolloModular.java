@@ -1,37 +1,21 @@
 package com.github.charlemaznable.configservice.apollo;
 
-import com.github.charlemaznable.configservice.apollo.ApolloFactory.ApolloLoader;
-import com.github.charlemaznable.core.guice.CommonModular;
+import com.github.charlemaznable.configservice.impl.AbstractConfigModular;
 import com.google.inject.Module;
-import com.google.inject.Provider;
-import lombok.experimental.Delegate;
 
-import static com.github.charlemaznable.configservice.apollo.ApolloFactory.apolloLoader;
 import static com.github.charlemaznable.core.lang.Listt.newArrayList;
-import static com.github.charlemaznable.core.spring.AnnotationElf.findAnnotation;
-import static java.util.Objects.nonNull;
 
-public final class ApolloModular extends CommonModular<ApolloModular> {
-
-    @Delegate
-    private final ApolloLoader loader;
+public final class ApolloModular extends AbstractConfigModular<ApolloModular> {
 
     public ApolloModular(Module... modules) {
         this(newArrayList(modules));
     }
 
     public ApolloModular(Iterable<? extends Module> modules) {
-        super(modules);
-        this.loader = apolloLoader(guiceFactory);
+        super(modules, ApolloFactory::apolloLoader);
     }
 
-    @Override
-    public boolean isCandidateClass(Class<?> clazz) {
-        return nonNull(findAnnotation(clazz, ApolloConfig.class));
-    }
-
-    @Override
-    public <T> Provider<T> createProvider(Class<T> clazz) {
-        return () -> getApollo(clazz);
+    public <T> T getApollo(Class<T> configClass) {
+        return getConfig(configClass);
     }
 }

@@ -1,13 +1,10 @@
 package com.github.charlemaznable.configservice.test;
 
-import com.github.charlemaznable.configservice.apollo.ApolloConfig;
-import com.github.charlemaznable.configservice.diamond.DiamondConfig;
+import com.github.charlemaznable.configservice.Config;
 
-@ApolloConfig("THREAD_DATA")
-@DiamondConfig("THREAD_DATA")
+@Config("THREAD_DATA")
 public interface TestDefaultWired {
 
-    @ApolloConfig(defaultValueProvider = TestDefaultWiredProvider.class)
-    @DiamondConfig(defaultValueProvider = TestDefaultWiredProvider.class)
+    @Config(defaultValueProvider = TestDefaultWiredProvider.class)
     String thread();
 }

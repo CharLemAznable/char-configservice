@@ -1,10 +1,10 @@
 package com.github.charlemaznable.configservice.test;
 
+import com.github.charlemaznable.configservice.Config;
 import com.github.charlemaznable.configservice.apollo.ApolloConfig;
 import com.github.charlemaznable.configservice.diamond.DiamondConfig;
 
-@ApolloConfig("DEFAULT_DATA")
-@DiamondConfig("DEFAULT_DATA")
+@Config("DEFAULT_DATA")
 public interface TestWired {
 
     String name();

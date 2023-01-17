@@ -1,22 +1,21 @@
 package com.github.charlemaznable.configservice.diamond.spring;
 
-import com.github.charlemaznable.core.spring.SpringContext;
 import com.github.charlemaznable.configservice.test.TestWired;
 import com.github.charlemaznable.configservice.test.TestWiredConcrete;
 import com.github.charlemaznable.configservice.test.TestWiredNone;
+import com.github.charlemaznable.core.spring.SpringContext;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n3r.diamond.client.impl.MockDiamondServer;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@ExtendWith({SpringExtension.class, DiamondSpringArgumentsExtension.class})
-@ContextConfiguration(classes = DiamondSpringConfiguration.class)
+@ExtendWith(DiamondSpringArgumentsExtension.class)
+@SpringJUnitConfig(DiamondSpringConfiguration.class)
 public class DiamondSpringTest {
 
     @Test
