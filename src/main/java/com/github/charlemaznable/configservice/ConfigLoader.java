@@ -71,7 +71,7 @@ public abstract class ConfigLoader {
         val configProxy = buildConfigProxy(configClass, factory);
         return BuddyEnhancer.create(ConfigDummy.class,
                 new Object[]{configClass},
-                new Class[]{configClass, ConfigGetter.class},
+                new Class[]{configClass, ConfigGetter.class, ConfigListenerRegister.class},
                 invocation -> {
                     if (invocation.getMethod().isDefault() ||
                             invocation.getMethod().getDeclaringClass()

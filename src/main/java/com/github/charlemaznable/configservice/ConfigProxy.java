@@ -23,7 +23,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.core.annotation.AnnotatedElementUtils.isAnnotated;
 
-public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
+public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate, ConfigListenerRegister {
 
     protected final Class<T> configClass;
     protected final Factory factory;
@@ -43,6 +43,9 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
         val args = invocation.getArguments();
         if (method.getDeclaringClass().equals(ConfigGetter.class)) {
             return method.invoke(configLoader.getConfigGetter(configClass), args);
+        }
+        if (method.getDeclaringClass().equals(ConfigListenerRegister.class)) {
+            return method.invoke(this, args);
         }
 
         val configEntry = entryCache.get(method);
