@@ -425,12 +425,12 @@ public class DiamondFactoryTest {
         assertEquals("value2", testListener2.getValue());
 
         testListener1.reset();
-        testListenerRegister.addConfigListener("Listener2", "data2", testListener1);
+        testListenerRegister.addConfigListener("Listener", "data2", testListener1);
         awaitForSeconds(1);
 
-        MockDiamondServer.updateDiamond("Listener2", "data2", "value4");
+        MockDiamondServer.updateDiamond("Listener", "data2", "value4");
         await().forever().until(testListener1::isChanged);
-        assertEquals("Listener2", testListener1.getKeyset());
+        assertEquals("Listener", testListener1.getKeyset());
         assertEquals("data2", testListener1.getKey());
         assertEquals("value4", testListener1.getValue());
     }
