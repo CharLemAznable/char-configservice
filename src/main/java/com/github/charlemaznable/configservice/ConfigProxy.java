@@ -1,6 +1,7 @@
 package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.annotation.DefaultEmptyValue;
+import com.github.charlemaznable.configservice.elf.ConfigListenerProxy;
 import com.github.charlemaznable.configservice.elf.ConfigListenerRegisterProxy;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
 import com.github.charlemaznable.core.context.FactoryContext;
@@ -29,7 +30,7 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
     protected final Class<T> configClass;
     protected final Factory factory;
     protected final ConfigLoader configLoader;
-    protected final ConfigListenerRegisterProxy<?> configListenerRegisterProxy;
+    protected final ConfigListenerRegisterProxy<? extends ConfigListenerProxy> configListenerRegisterProxy;
     private final ExpiringMap<Method, ConfigEntry> entryCache
             = expiringMap(ExpiringEntryLoaderr.from(this::loadConfigEntry));
 
@@ -66,7 +67,7 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
         return null;
     }
 
-    protected abstract ConfigListenerRegisterProxy<?> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader);
+    protected abstract ConfigListenerRegisterProxy<? extends ConfigListenerProxy> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader);
 
     protected abstract String loadConfigValue(ConfigGetter configGetter, ConfigSetting configSetting);
 

@@ -122,7 +122,7 @@ public final class ApolloFactory {
         }
 
         @Override
-        protected ConfigListenerRegisterProxy<?> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader) {
+        protected ConfigListenerRegisterProxy<? extends ConfigListenerProxy> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader) {
             return new ApolloConfigListenerRegister(configClass, configLoader);
         }
 
