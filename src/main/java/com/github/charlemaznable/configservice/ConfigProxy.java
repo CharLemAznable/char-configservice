@@ -1,6 +1,7 @@
 package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.annotation.DefaultEmptyValue;
+import com.github.charlemaznable.configservice.elf.ConfigListenerRegisterProxy;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.BuddyEnhancer;
@@ -23,11 +24,12 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.core.annotation.AnnotatedElementUtils.isAnnotated;
 
-public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate, ConfigListenerRegister {
+public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
 
     protected final Class<T> configClass;
     protected final Factory factory;
     protected final ConfigLoader configLoader;
+    protected final ConfigListenerRegisterProxy<?> configListenerRegisterProxy;
     private final ExpiringMap<Method, ConfigEntry> entryCache
             = expiringMap(ExpiringEntryLoaderr.from(this::loadConfigEntry));
 
@@ -35,6 +37,7 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate, ConfigLi
         this.configClass = configClass;
         this.factory = factory;
         this.configLoader = configLoader;
+        this.configListenerRegisterProxy = buildListenerRegisterProxy(configClass, configLoader);
     }
 
     @Override
@@ -45,7 +48,7 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate, ConfigLi
             return method.invoke(configLoader.getConfigGetter(configClass), args);
         }
         if (method.getDeclaringClass().equals(ConfigListenerRegister.class)) {
-            return method.invoke(this, args);
+            return method.invoke(this.configListenerRegisterProxy, args);
         }
 
         val configEntry = entryCache.get(method);
@@ -62,6 +65,8 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate, ConfigLi
             return convertType(defaultValue, method, factory, configKey);
         return null;
     }
+
+    protected abstract ConfigListenerRegisterProxy<?> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader);
 
     protected abstract String loadConfigValue(ConfigGetter configGetter, ConfigSetting configSetting);
 

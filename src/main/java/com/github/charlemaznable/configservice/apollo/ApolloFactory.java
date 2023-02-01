@@ -10,6 +10,7 @@ import com.github.charlemaznable.configservice.ConfigLoader;
 import com.github.charlemaznable.configservice.ConfigProxy;
 import com.github.charlemaznable.configservice.elf.ConfigImpl;
 import com.github.charlemaznable.configservice.elf.ConfigListenerProxy;
+import com.github.charlemaznable.configservice.elf.ConfigListenerRegisterProxy;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.Factory;
@@ -116,10 +117,13 @@ public final class ApolloFactory {
 
     public static final class ApolloProxy<T> extends ConfigProxy<T> {
 
-        private static final Map<Triple<String, String, ConfigListener>, ApolloConfigListener> listenerMap = new ConcurrentHashMap<>();
-
         ApolloProxy(Class<T> configClass, Factory factory, ConfigLoader configLoader) {
             super(configClass, factory, configLoader);
+        }
+
+        @Override
+        protected ConfigListenerRegisterProxy<?> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader) {
+            return new ApolloConfigListenerRegister(configClass, configLoader);
         }
 
         @Override
@@ -145,25 +149,6 @@ public final class ApolloFactory {
             return super.ignoredDefaultValueProvider(providerClass) ||
                     ApolloConfig.DefaultValueProvider.class == providerClass;
         }
-
-        @Override
-        public void addConfigListener(String keyset, String key, ConfigListener listener) {
-            listenerMap.computeIfAbsent(Triple.of(keyset, key, listener), t -> {
-                val apolloListener = new ApolloConfigListener(keyset, key, listener);
-                new Thread(() -> ConfigService.getConfig(keyset)
-                        .addChangeListener(apolloListener, newHashSet(key))).start();
-                return apolloListener;
-            });
-        }
-
-        @Override
-        public void removeConfigListener(String keyset, String key, ConfigListener listener) {
-            listenerMap.computeIfPresent(Triple.of(keyset, key, listener), (t, apolloListener) -> {
-                new Thread(() -> ConfigService.getConfig(keyset)
-                        .removeChangeListener(apolloListener)).start();
-                return null;
-            });
-        }
     }
 
     public static final class ApolloConfigListener extends ConfigListenerProxy implements ConfigChangeListener {
@@ -176,6 +161,39 @@ public final class ApolloFactory {
         public void onChange(ConfigChangeEvent changeEvent) {
             if (!changeEvent.isChanged(this.key)) return;
             this.onChange(changeEvent.getChange(this.key).getNewValue());
+        }
+    }
+
+    public static final class ApolloConfigListenerRegister extends ConfigListenerRegisterProxy<ApolloConfigListener> {
+
+        private static final Map<Triple<String, String, ConfigListener>, ApolloConfigListener> listenerMap = new ConcurrentHashMap<>();
+
+        public ApolloConfigListenerRegister(Class<?> configClass, ConfigLoader configLoader) {
+            super(configClass, configLoader);
+        }
+
+        @Override
+        protected String defaultListeningKeyset() {
+            return blankThen(super.defaultListeningKeyset(), () -> "application");
+        }
+
+        @Override
+        protected Map<Triple<String, String, ConfigListener>, ApolloConfigListener> listenerMap() {
+            return listenerMap;
+        }
+
+        @Override
+        protected ApolloConfigListener addConfigListenerProxy(String keyset, String key, ConfigListener listener) {
+            val apolloListener = new ApolloConfigListener(keyset, key, listener);
+            new Thread(() -> ConfigService.getConfig(keyset)
+                    .addChangeListener(apolloListener, newHashSet(key))).start();
+            return apolloListener;
+        }
+
+        @Override
+        protected void removeConfigListenerProxy(String keyset, String key, ApolloConfigListener listenerProxy) {
+            new Thread(() -> ConfigService.getConfig(keyset)
+                    .removeChangeListener(listenerProxy)).start();
         }
     }
 }

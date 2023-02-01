@@ -478,8 +478,8 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         val testListener1 = new TestListener();
         val testListener2 = new TestListener();
 
-        testListenerRegister.addConfigListener("Listener", "data", testListener1);
-        testListenerRegister.addConfigListener("Listener", "data", testListener2);
+        testListenerRegister.addConfigListener(testListener1);
+        testListenerRegister.addConfigListener(testListener2);
         awaitForSeconds(1);
 
         MockApolloServer.addOrModifyProperty("Listener", "data", "value2");
@@ -494,7 +494,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         testListener1.reset();
         testListener2.reset();
-        testListenerRegister.removeConfigListener("Listener", "data", testListener2);
+        testListenerRegister.removeConfigListener(testListener2);
         awaitForSeconds(1);
 
         MockApolloServer.addOrModifyProperty("Listener", "data", "value3");
@@ -508,7 +508,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         assertEquals("value2", testListener2.getValue());
 
         testListener1.reset();
-        testListenerRegister.addConfigListener("Listener", "data2", testListener1);
+        testListenerRegister.addConfigListener("data2", testListener1);
         awaitForSeconds(1);
 
         MockApolloServer.addOrModifyProperty("Listener", "data2", "value4");
@@ -516,6 +516,9 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         assertEquals("Listener", testListener1.getKeyset());
         assertEquals("data2", testListener1.getKey());
         assertEquals("value4", testListener1.getValue());
+
+        testListenerRegister.addConfigListener("", testListener1);
+        testListenerRegister.removeConfigListener("", testListener1);
 
         ConfigService.getConfig("Listener").removeChangeListener(this);
     }

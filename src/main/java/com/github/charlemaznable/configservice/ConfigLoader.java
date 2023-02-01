@@ -61,6 +61,13 @@ public abstract class ConfigLoader {
         return getMergedAnnotation(element, Config.class);
     }
 
+    public <T> ConfigSetting fetchConfigSetting(Class<T> configClass) {
+        val configAnno = checkNotNull(fetchConfigAnno(configClass));
+        return ConfigSetting.builder()
+                .keyset(fetchKeyset(configClass, configAnno))
+                .key(fetchKey(configClass, configAnno)).build();
+    }
+
     protected abstract ConfigGetter buildConfigGetter(ConfigSetting configSetting);
 
     @Nonnull

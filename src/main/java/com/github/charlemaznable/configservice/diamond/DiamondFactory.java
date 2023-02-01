@@ -7,6 +7,7 @@ import com.github.charlemaznable.configservice.ConfigLoader;
 import com.github.charlemaznable.configservice.ConfigProxy;
 import com.github.charlemaznable.configservice.elf.ConfigImpl;
 import com.github.charlemaznable.configservice.elf.ConfigListenerProxy;
+import com.github.charlemaznable.configservice.elf.ConfigListenerRegisterProxy;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.Factory;
@@ -118,10 +119,13 @@ public final class DiamondFactory {
 
     public static final class DiamondProxy<T> extends ConfigProxy<T> {
 
-        private static final Map<Triple<String, String, ConfigListener>, DiamondConfigListener> listenerMap = new ConcurrentHashMap<>();
-
         DiamondProxy(Class<T> configClass, Factory factory, ConfigLoader configLoader) {
             super(configClass, factory, configLoader);
+        }
+
+        @Override
+        protected ConfigListenerRegisterProxy<?> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader) {
+            return new DiamondConfigListenerRegister(configClass, configLoader);
         }
 
         @Override
@@ -153,25 +157,6 @@ public final class DiamondFactory {
             return super.ignoredDefaultValueProvider(providerClass) ||
                     DiamondConfig.DefaultValueProvider.class == providerClass;
         }
-
-        @Override
-        public void addConfigListener(String keyset, String key, ConfigListener listener) {
-            listenerMap.computeIfAbsent(Triple.of(keyset, key, listener), t -> {
-                val diamondListener = new DiamondConfigListener(keyset, key, listener);
-                new Thread(() -> DiamondSubscriber.getInstance()
-                        .addDiamondListener(DiamondAxis.makeAxis(keyset, key), diamondListener)).start();
-                return diamondListener;
-            });
-        }
-
-        @Override
-        public void removeConfigListener(String keyset, String key, ConfigListener listener) {
-            listenerMap.computeIfPresent(Triple.of(keyset, key, listener), (t, diamondListener) -> {
-                new Thread(() -> DiamondSubscriber.getInstance()
-                        .removeDiamondListener(DiamondAxis.makeAxis(keyset, key), diamondListener)).start();
-                return null;
-            });
-        }
     }
 
     public static final class DiamondConfigListener extends ConfigListenerProxy implements DiamondListener {
@@ -183,6 +168,39 @@ public final class DiamondFactory {
         @Override
         public void accept(DiamondStone diamondStone) {
             this.onChange(diamondStone.getContent());
+        }
+    }
+
+    public static final class DiamondConfigListenerRegister extends ConfigListenerRegisterProxy<DiamondConfigListener> {
+
+        private static final Map<Triple<String, String, ConfigListener>, DiamondConfigListener> listenerMap = new ConcurrentHashMap<>();
+
+        public DiamondConfigListenerRegister(Class<?> configClass, ConfigLoader configLoader) {
+            super(configClass, configLoader);
+        }
+
+        @Override
+        protected String defaultListeningKeyset() {
+            return blankThen(super.defaultListeningKeyset(), () -> "DEFAULT_GROUP");
+        }
+
+        @Override
+        protected Map<Triple<String, String, ConfigListener>, DiamondConfigListener> listenerMap() {
+            return listenerMap;
+        }
+
+        @Override
+        protected DiamondConfigListener addConfigListenerProxy(String keyset, String key, ConfigListener listener) {
+            val diamondListener = new DiamondConfigListener(keyset, key, listener);
+            new Thread(() -> DiamondSubscriber.getInstance()
+                    .addDiamondListener(DiamondAxis.makeAxis(keyset, key), diamondListener)).start();
+            return diamondListener;
+        }
+
+        @Override
+        protected void removeConfigListenerProxy(String keyset, String key, DiamondConfigListener listenerProxy) {
+            new Thread(() -> DiamondSubscriber.getInstance()
+                    .removeDiamondListener(DiamondAxis.makeAxis(keyset, key), listenerProxy)).start();
         }
     }
 }
