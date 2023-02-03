@@ -3,12 +3,13 @@ package com.github.charlemaznable.configservice.diamond;
 import com.github.charlemaznable.configservice.impl.DefaultConfigGetter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.apache.commons.lang3.BooleanUtils;
 import org.n3r.diamond.client.Minerable;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.github.charlemaznable.core.lang.Condition.checkNull;
 import static com.github.charlemaznable.core.lang.Condition.nullThen;
-import static org.apache.commons.lang3.BooleanUtils.toBooleanObject;
 import static org.apache.commons.lang3.math.NumberUtils.toByte;
 import static org.apache.commons.lang3.math.NumberUtils.toDouble;
 import static org.apache.commons.lang3.math.NumberUtils.toFloat;
@@ -59,7 +60,7 @@ public final class DiamondConfigGetter extends DefaultConfigGetter {
 
     @Override
     public boolean getBoolean(String key, boolean defaultValue) {
-        return nullThen(toBooleanObject(minerable.getString(key)), () -> defaultValue);
+        return checkNull(minerable.getString(key), () -> defaultValue, BooleanUtils::toBoolean);
     }
 
     @Override

@@ -53,7 +53,7 @@ public abstract class ApolloConfigGetter extends DefaultConfigGetter {
 
     @Override
     public boolean getBoolean(String key, boolean defaultValue) {
-        return getValue(key, defaultValue, BooleanUtils::toBooleanObject);
+        return getValue(key, defaultValue, BooleanUtils::toBoolean);
     }
 
     @Override
@@ -61,7 +61,7 @@ public abstract class ApolloConfigGetter extends DefaultConfigGetter {
         return getValue(key, defaultValue, Functions.TO_DURATION_FUNCTION);
     }
 
-    protected <T> T getValue(String key, T defaultValue, Function<String, T> parser) {
+    private <T> T getValue(String key, T defaultValue, Function<String, T> parser) {
         return checkBlank(getString(key), () -> defaultValue, value -> {
             try {
                 return parser.apply(value);
