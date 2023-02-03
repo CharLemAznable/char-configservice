@@ -3,13 +3,13 @@ package com.github.charlemaznable.configservice.elf;
 import com.github.charlemaznable.configservice.annotation.ConfigValueParseBy;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.Factory;
+import com.github.charlemaznable.core.lang.Objectt;
 import com.google.common.primitives.Primitives;
 import com.moandjiezana.toml.Toml;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.text.StringSubstitutor;
-import org.n3r.diamond.client.impl.DiamondUtils;
 
 import java.io.StringReader;
 import java.lang.reflect.Method;
@@ -75,8 +75,8 @@ public final class ConfigServiceElf {
         val isCollection = grt instanceof ParameterizedType
                 && Collection.class.isAssignableFrom(rt);
 
-        if (!isCollection) return DiamondUtils.parseObject(value, rt);
-        return DiamondUtils.parseObjects(value,
+        if (!isCollection) return Objectt.parseObject(value, rt);
+        return Objectt.parseObjects(value,
                 (Class<?>) ((ParameterizedType) grt).getActualTypeArguments()[0]);
     }
 
