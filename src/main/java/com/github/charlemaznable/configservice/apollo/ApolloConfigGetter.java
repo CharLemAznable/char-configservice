@@ -5,6 +5,7 @@ import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.util.function.Functions;
 import com.github.charlemaznable.configservice.impl.DefaultConfigGetter;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Properties;
 import java.util.function.Function;
@@ -52,7 +53,7 @@ public abstract class ApolloConfigGetter extends DefaultConfigGetter {
 
     @Override
     public boolean getBoolean(String key, boolean defaultValue) {
-        return getValue(key, defaultValue, Functions.TO_BOOLEAN_FUNCTION);
+        return getValue(key, defaultValue, BooleanUtils::toBooleanObject);
     }
 
     @Override
