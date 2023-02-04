@@ -72,28 +72,28 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
 
     private ExpiringValue<ConfigEntry> loadConfigEntry(Method method) {
         val configAnno = configLoader.fetchConfigAnno(method);
-        val keyset = fetchKeyset(method, configAnno);
-        val key = blankThen(fetchKey(method, configAnno), method::getName);
+        val keyset = fetchKeyset(configAnno);
+        val key = blankThen(fetchKey(configAnno), method::getName);
         val configSetting = ConfigSetting.builder().keyset(keyset).key(key).build();
         val defaultEmptyValue = isAnnotated(method, DefaultEmptyValue.class);
-        val defaultValue = fetchDefaultValue(method, configAnno, defaultEmptyValue);
+        val defaultValue = fetchDefaultValue(configAnno, defaultEmptyValue);
         val cacheSeconds = fetchCacheSeconds(configAnno);
         return new ExpiringValue<>(new ConfigEntry(key,
                 loadConfigValue(configLoader.getConfigGetter(configClass), configSetting),
                 defaultValue), cacheSeconds, TimeUnit.SECONDS);
     }
 
-    private String fetchKeyset(Method method, Config configAnno) {
+    private String fetchKeyset(Config configAnno) {
         if (isNull(configAnno)) return "";
         return substitute(configAnno.keyset());
     }
 
-    private String fetchKey(Method method, Config configAnno) {
+    private String fetchKey(Config configAnno) {
         if (isNull(configAnno)) return "";
         return substitute(configAnno.key());
     }
 
-    private String fetchDefaultValue(Method method, Config configAnno, boolean defaultEmptyValue) {
+    private String fetchDefaultValue(Config configAnno, boolean defaultEmptyValue) {
         if (isNull(configAnno)) return defaultEmptyValue ? "" : null;
         return substitute(blankThen(configAnno.defaultValue(), () -> defaultEmptyValue ? "" : null));
     }

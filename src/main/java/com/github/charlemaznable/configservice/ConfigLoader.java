@@ -68,8 +68,8 @@ public abstract class ConfigLoader {
     public <T> ConfigSetting fetchConfigSetting(Class<T> configClass) {
         val configAnno = checkNotNull(fetchConfigAnno(configClass));
         return ConfigSetting.builder()
-                .keyset(fetchKeyset(configClass, configAnno))
-                .key(fetchKey(configClass, configAnno)).build();
+                .keyset(fetchKeyset(configAnno))
+                .key(fetchKey(configAnno)).build();
     }
 
     protected abstract ConfigGetter buildConfigGetter(ConfigSetting configSetting);
@@ -94,18 +94,16 @@ public abstract class ConfigLoader {
 
     private <T> ExpiringValue<ConfigGetter> loadConfigGetter(Class<T> configClass) {
         val configAnno = checkNotNull(fetchConfigAnno(configClass));
-        val configGetter = buildConfigGetter(
-                fetchKeyset(configClass, configAnno),
-                fetchKey(configClass, configAnno));
+        val configGetter = buildConfigGetter(fetchKeyset(configAnno), fetchKey(configAnno));
         val cacheSeconds = Math.max(0, configAnno.cacheSeconds());
         return new ExpiringValue<>(configGetter, cacheSeconds, TimeUnit.SECONDS);
     }
 
-    private <T> String fetchKeyset(Class<T> configClass, Config configAnno) {
+    private <T> String fetchKeyset(Config configAnno) {
         return substitute(configAnno.keyset());
     }
 
-    private <T> String fetchKey(Class<T> configClass, Config configAnno) {
+    private <T> String fetchKey(Config configAnno) {
         return substitute(configAnno.key());
     }
 
