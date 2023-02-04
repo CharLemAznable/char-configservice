@@ -2,7 +2,6 @@ package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.elf.ConfigServiceException;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
-import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.BuddyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
@@ -96,29 +95,18 @@ public abstract class ConfigLoader {
     private <T> ExpiringValue<ConfigGetter> loadConfigGetter(Class<T> configClass) {
         val configAnno = checkNotNull(fetchConfigAnno(configClass));
         val configGetter = buildConfigGetter(
-                fetchKeyset(configClass, configAnno), fetchKey(configClass, configAnno));
+                fetchKeyset(configClass, configAnno),
+                fetchKey(configClass, configAnno));
         val cacheSeconds = Math.max(0, configAnno.cacheSeconds());
         return new ExpiringValue<>(configGetter, cacheSeconds, TimeUnit.SECONDS);
     }
 
     private <T> String fetchKeyset(Class<T> configClass, Config configAnno) {
-        val providerClass = configAnno.keysetProvider();
-        return substitute(ignoredKeysetProvider(providerClass) ? configAnno.keyset()
-                : FactoryContext.apply(factory, providerClass, p -> p.keyset(configClass)));
-    }
-
-    protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-        return Config.KeysetProvider.class == providerClass;
+        return substitute(configAnno.keyset());
     }
 
     private <T> String fetchKey(Class<T> configClass, Config configAnno) {
-        val providerClass = configAnno.keyProvider();
-        return substitute(ignoredKeyProvider(providerClass) ? configAnno.key()
-                : FactoryContext.apply(factory, providerClass, p -> p.key(configClass)));
-    }
-
-    protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-        return Config.KeyProvider.class == providerClass;
+        return substitute(configAnno.key());
     }
 
     @AllArgsConstructor

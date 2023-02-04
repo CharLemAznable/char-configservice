@@ -35,8 +35,6 @@ public class ApolloSpringNakedTest {
         assertNotNull(testWired);
         assertEquals("John", testWired.name());
         assertEquals("John Doe", testWired.full());
-        assertThrows(NullPointerException.class, testWired::longName);
-        assertNull(testWired.longWrap());
         assertEquals("xyz", testWired.abc("xyz"));
         assertNull(testWired.abc(null));
 

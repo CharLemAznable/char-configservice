@@ -86,10 +86,7 @@ public final class ApolloFactory {
                     .key(apolloConfig.propertyName())
                     .value(apolloConfig.value())
                     .defaultValue(apolloConfig.defaultValue())
-                    .cacheSeconds(apolloConfig.cacheSeconds())
-                    .keysetProvider(apolloConfig.namespaceProvider())
-                    .keyProvider(apolloConfig.propertyNameProvider())
-                    .defaultValueProvider(apolloConfig.defaultValueProvider()).build();
+                    .cacheSeconds(apolloConfig.cacheSeconds()).build();
         }
 
         @Override
@@ -100,18 +97,6 @@ public final class ApolloFactory {
             if (isBlank(propertyName)) return new ApolloConfigGetter.ApolloNamespaceGetter(config);
             return new ApolloConfigGetter.ApolloPropertiesGetter(parseStringToProperties(
                     config.getProperty(propertyName, ""), propertyName));
-        }
-
-        @Override
-        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-            return super.ignoredKeysetProvider(providerClass) ||
-                    ApolloConfig.NamespaceProvider.class == providerClass;
-        }
-
-        @Override
-        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-            return super.ignoredKeyProvider(providerClass) ||
-                    ApolloConfig.PropertyNameProvider.class == providerClass;
         }
     }
 
@@ -130,24 +115,6 @@ public final class ApolloFactory {
         protected String loadConfigValue(ConfigGetter configGetter, ConfigSetting configSetting) {
             return ((ApolloConfigGetter) configGetter)
                     .getPropertyValue(configSetting.keyset(), configSetting.key());
-        }
-
-        @Override
-        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-            return super.ignoredKeysetProvider(providerClass) ||
-                    ApolloConfig.NamespaceProvider.class == providerClass;
-        }
-
-        @Override
-        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-            return super.ignoredKeyProvider(providerClass) ||
-                    ApolloConfig.PropertyNameProvider.class == providerClass;
-        }
-
-        @Override
-        protected boolean ignoredDefaultValueProvider(Class<? extends Config.DefaultValueProvider> providerClass) {
-            return super.ignoredDefaultValueProvider(providerClass) ||
-                    ApolloConfig.DefaultValueProvider.class == providerClass;
         }
     }
 

@@ -89,10 +89,7 @@ public final class DiamondFactory {
                     .key(diamondConfig.dataId())
                     .value(diamondConfig.value())
                     .defaultValue(diamondConfig.defaultValue())
-                    .cacheSeconds(diamondConfig.cacheSeconds())
-                    .keysetProvider(diamondConfig.groupProvider())
-                    .keyProvider(diamondConfig.dataIdProvider())
-                    .defaultValueProvider(diamondConfig.defaultValueProvider()).build();
+                    .cacheSeconds(diamondConfig.cacheSeconds()).build();
         }
 
         @Override
@@ -102,18 +99,6 @@ public final class DiamondFactory {
             val miner = new Miner(blankThen(group, () -> "DEFAULT_GROUP"));
             return new DiamondConfigGetter(isBlank(dataId) ? miner :
                     new PropertiesBasedMiner(parseStringToProperties(miner.getString(dataId), dataId)));
-        }
-
-        @Override
-        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-            return super.ignoredKeysetProvider(providerClass) ||
-                    DiamondConfig.GroupProvider.class == providerClass;
-        }
-
-        @Override
-        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-            return super.ignoredKeyProvider(providerClass) ||
-                    DiamondConfig.DataIdProvider.class == providerClass;
         }
     }
 
@@ -138,24 +123,6 @@ public final class DiamondFactory {
             String stoneGroup = blankThen(configSetting.keyset(), () -> minerable instanceof AbstractMiner ?
                     ((AbstractMiner) minerable).getDefaultGroupName() : configSetting.keyset());
             return minerable.getStone(stoneGroup, configSetting.key());
-        }
-
-        @Override
-        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-            return super.ignoredKeysetProvider(providerClass) ||
-                    DiamondConfig.GroupProvider.class == providerClass;
-        }
-
-        @Override
-        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-            return super.ignoredKeyProvider(providerClass) ||
-                    DiamondConfig.DataIdProvider.class == providerClass;
-        }
-
-        @Override
-        protected boolean ignoredDefaultValueProvider(Class<? extends Config.DefaultValueProvider> providerClass) {
-            return super.ignoredDefaultValueProvider(providerClass) ||
-                    DiamondConfig.DefaultValueProvider.class == providerClass;
         }
     }
 

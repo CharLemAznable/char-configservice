@@ -4,7 +4,6 @@ import com.github.charlemaznable.configservice.annotation.DefaultEmptyValue;
 import com.github.charlemaznable.configservice.elf.ConfigListenerProxy;
 import com.github.charlemaznable.configservice.elf.ConfigListenerRegisterProxy;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
-import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.BuddyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
@@ -86,36 +85,17 @@ public abstract class ConfigProxy<T> implements BuddyEnhancer.Delegate {
 
     private String fetchKeyset(Method method, Config configAnno) {
         if (isNull(configAnno)) return "";
-        val providerClass = configAnno.keysetProvider();
-        return substitute(ignoredKeysetProvider(providerClass) ? configAnno.keyset()
-                : FactoryContext.apply(factory, providerClass, p -> p.keyset(configClass, method)));
-    }
-
-    protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-        return Config.KeysetProvider.class == providerClass;
+        return substitute(configAnno.keyset());
     }
 
     private String fetchKey(Method method, Config configAnno) {
         if (isNull(configAnno)) return "";
-        val providerClass = configAnno.keyProvider();
-        return substitute(ignoredKeyProvider(providerClass) ? configAnno.key()
-                : FactoryContext.apply(factory, providerClass, p -> p.key(configClass, method)));
-    }
-
-    protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-        return Config.KeyProvider.class == providerClass;
+        return substitute(configAnno.key());
     }
 
     private String fetchDefaultValue(Method method, Config configAnno, boolean defaultEmptyValue) {
         if (isNull(configAnno)) return defaultEmptyValue ? "" : null;
-        val providerClass = configAnno.defaultValueProvider();
-        String defaultValue = ignoredDefaultValueProvider(providerClass) ? configAnno.defaultValue()
-                : FactoryContext.apply(factory, providerClass, p -> p.defaultValue(configClass, method));
-        return substitute(blankThen(defaultValue, () -> defaultEmptyValue ? "" : null));
-    }
-
-    protected boolean ignoredDefaultValueProvider(Class<? extends Config.DefaultValueProvider> providerClass) {
-        return Config.DefaultValueProvider.class == providerClass;
+        return substitute(blankThen(configAnno.defaultValue(), () -> defaultEmptyValue ? "" : null));
     }
 
     private long fetchCacheSeconds(Config configAnno) {

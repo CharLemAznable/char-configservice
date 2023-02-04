@@ -31,20 +31,12 @@ public class ApolloSpringTest {
         assertNotNull(testWired);
         assertEquals("John", testWired.name());
         assertEquals("John Doe", testWired.full());
-        assertEquals("John Doe Richard", testWired.longName());
-        assertEquals("John Doe Richard", testWired.longWrap());
         assertEquals("xyz", testWired.abc("xyz"));
         assertNull(testWired.abc(null));
-        assertEquals("springspring&springspring&guiceguice",
-                testWired.defaultInContext());
         assertEquals("John", testWired.name());
         assertEquals("John Doe", testWired.full());
-        assertEquals("John Doe Richard", testWired.longName());
-        assertEquals("John Doe Richard", testWired.longWrap());
         assertEquals("xyz", testWired.abc("xyz"));
         assertNull(testWired.abc(null));
-        assertEquals("springspring&springspring&guiceguice",
-                testWired.defaultInContext());
 
         val testWiredConcrete = SpringContext.getBean(TestWiredConcrete.class);
         assertNull(testWiredConcrete);

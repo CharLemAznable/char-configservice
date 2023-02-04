@@ -14,7 +14,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringJUnitConfig(ApolloSpringErrorConfiguration.class)
 public class ApolloSpringErrorTest {
@@ -30,8 +29,6 @@ public class ApolloSpringErrorTest {
         assertNotNull(testWired);
         assertEquals("John", testWired.name());
         assertEquals("John Doe", testWired.full());
-        assertThrows(NullPointerException.class, testWired::longName);
-        assertNull(testWired.longWrap());
         assertEquals("xyz", testWired.abc("xyz"));
         assertNull(testWired.abc(null));
 

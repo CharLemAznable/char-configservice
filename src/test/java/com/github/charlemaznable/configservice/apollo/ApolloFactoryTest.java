@@ -13,16 +13,10 @@ import com.github.charlemaznable.configservice.test.common.TestBaseNone;
 import com.github.charlemaznable.configservice.test.common.TestCache;
 import com.github.charlemaznable.configservice.test.common.TestCacheNone;
 import com.github.charlemaznable.configservice.test.common.TestConfigArg;
-import com.github.charlemaznable.configservice.test.common.TestConfigProps;
 import com.github.charlemaznable.configservice.test.common.TestDefData;
 import com.github.charlemaznable.configservice.test.common.TestDefault;
 import com.github.charlemaznable.configservice.test.common.TestDefaultData;
 import com.github.charlemaznable.configservice.test.common.TestDefaultDataEmpty;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError1;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError2;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError3;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError4;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError5;
 import com.github.charlemaznable.configservice.test.common.TestGetterDefault;
 import com.github.charlemaznable.configservice.test.common.TestListener;
 import com.github.charlemaznable.configservice.test.common.TestListenerRegister;
@@ -407,36 +401,6 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         assertEquals("http://a.b.c:9200", parseEsConfig.getUris().get(0));
 
         ConfigService.getConfig("PARSE_GROUP").removeChangeListener(this);
-    }
-
-    @Test
-    public void testConfigProps() {
-        ConfigService.getConfig("GROUPGroup").addChangeListener(this);
-
-        changed = false;
-        MockApolloServer.addOrModifyProperty("GROUPGroup", "DataDATA",
-                "name=John\nfull=${name} Doe\nlong=${full} Richard");
-        await().forever().until(() -> changed);
-
-        val stoneProps = apolloLoader.getApollo(TestConfigProps.class);
-        assertNotNull(stoneProps);
-        assertEquals("John", stoneProps.name());
-        assertEquals("John Doe", stoneProps.full());
-        assertEquals("John Doe Richard", stoneProps.longName());
-        assertEquals("DEFAULTDefault", stoneProps.prop());
-
-        val error1 = apolloLoader.getApollo(ProvideError1.class);
-        assertThrows(ConfigServiceException.class, error1::prop);
-        val error2 = apolloLoader.getApollo(ProvideError2.class);
-        assertThrows(ConfigServiceException.class, error2::prop);
-        val error3 = apolloLoader.getApollo(ProvideError3.class);
-        assertThrows(ConfigServiceException.class, error3::prop);
-        val error4 = apolloLoader.getApollo(ProvideError4.class);
-        assertThrows(ConfigServiceException.class, error4::prop);
-        val error5 = apolloLoader.getApollo(ProvideError5.class);
-        assertThrows(ConfigServiceException.class, error5::prop);
-
-        ConfigService.getConfig("GROUPGroup").removeChangeListener(this);
     }
 
     @Test
