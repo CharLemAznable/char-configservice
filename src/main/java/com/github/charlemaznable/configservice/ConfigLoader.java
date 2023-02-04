@@ -99,11 +99,11 @@ public abstract class ConfigLoader {
         return new ExpiringValue<>(configGetter, cacheSeconds, TimeUnit.SECONDS);
     }
 
-    private <T> String fetchKeyset(Config configAnno) {
+    private String fetchKeyset(Config configAnno) {
         return substitute(configAnno.keyset());
     }
 
-    private <T> String fetchKey(Config configAnno) {
+    private String fetchKey(Config configAnno) {
         return substitute(configAnno.key());
     }
 
