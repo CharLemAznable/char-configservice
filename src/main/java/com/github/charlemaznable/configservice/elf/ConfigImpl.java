@@ -18,9 +18,6 @@ public final class ConfigImpl implements Config {
     private String value;
     private String defaultValue;
     private long cacheSeconds;
-    private Class<? extends KeysetProvider> keysetProvider;
-    private Class<? extends KeyProvider> keyProvider;
-    private Class<? extends DefaultValueProvider> defaultValueProvider;
 
     @Override
     public Class<? extends Annotation> annotationType() {

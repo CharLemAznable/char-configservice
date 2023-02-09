@@ -2,21 +2,31 @@ package com.github.charlemaznable.configservice.diamond;
 
 import com.github.charlemaznable.configservice.Config;
 import com.github.charlemaznable.configservice.ConfigGetter;
+import com.github.charlemaznable.configservice.ConfigListener;
 import com.github.charlemaznable.configservice.ConfigLoader;
 import com.github.charlemaznable.configservice.ConfigProxy;
 import com.github.charlemaznable.configservice.elf.ConfigImpl;
+import com.github.charlemaznable.configservice.elf.ConfigListenerProxy;
+import com.github.charlemaznable.configservice.elf.ConfigListenerRegisterProxy;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
 import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.Factory;
 import com.google.common.cache.LoadingCache;
 import lombok.NoArgsConstructor;
 import lombok.val;
+import org.apache.commons.lang3.tuple.Triple;
 import org.n3r.diamond.client.AbstractMiner;
+import org.n3r.diamond.client.DiamondAxis;
+import org.n3r.diamond.client.DiamondListener;
+import org.n3r.diamond.client.DiamondStone;
 import org.n3r.diamond.client.Miner;
+import org.n3r.diamond.client.impl.DiamondSubscriber;
 import org.n3r.diamond.client.impl.PropertiesBasedMiner;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.charlemaznable.configservice.elf.ConfigServiceElf.parseStringToProperties;
 import static com.github.charlemaznable.core.lang.Condition.blankThen;
@@ -79,10 +89,7 @@ public final class DiamondFactory {
                     .key(diamondConfig.dataId())
                     .value(diamondConfig.value())
                     .defaultValue(diamondConfig.defaultValue())
-                    .cacheSeconds(diamondConfig.cacheSeconds())
-                    .keysetProvider(diamondConfig.groupProvider())
-                    .keyProvider(diamondConfig.dataIdProvider())
-                    .defaultValueProvider(diamondConfig.defaultValueProvider()).build();
+                    .cacheSeconds(diamondConfig.cacheSeconds()).build();
         }
 
         @Override
@@ -93,18 +100,6 @@ public final class DiamondFactory {
             return new DiamondConfigGetter(isBlank(dataId) ? miner :
                     new PropertiesBasedMiner(parseStringToProperties(miner.getString(dataId), dataId)));
         }
-
-        @Override
-        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-            return super.ignoredKeysetProvider(providerClass) ||
-                    DiamondConfig.GroupProvider.class == providerClass;
-        }
-
-        @Override
-        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-            return super.ignoredKeyProvider(providerClass) ||
-                    DiamondConfig.DataIdProvider.class == providerClass;
-        }
     }
 
     public static final class DiamondProxy<T> extends ConfigProxy<T> {
@@ -113,6 +108,11 @@ public final class DiamondFactory {
             super(configClass, factory, configLoader);
         }
 
+        @Override
+        protected ConfigListenerRegisterProxy<? extends ConfigListenerProxy> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader) {
+            return new DiamondConfigListenerRegister(configClass, configLoader);
+        }
+        
         @Override
         protected String loadConfigValue(ConfigGetter configGetter, ConfigSetting configSetting) {
             val minerable = ((DiamondConfigGetter) configGetter).getMinerable();
@@ -124,23 +124,50 @@ public final class DiamondFactory {
                     ((AbstractMiner) minerable).getDefaultGroupName() : configSetting.keyset());
             return minerable.getStone(stoneGroup, configSetting.key());
         }
+    }
 
-        @Override
-        protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-            return super.ignoredKeysetProvider(providerClass) ||
-                    DiamondConfig.GroupProvider.class == providerClass;
+    public static final class DiamondConfigListener extends ConfigListenerProxy implements DiamondListener {
+
+        public DiamondConfigListener(String keyset, String key, ConfigListener listener) {
+            super(keyset, key, listener);
         }
 
         @Override
-        protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-            return super.ignoredKeyProvider(providerClass) ||
-                    DiamondConfig.DataIdProvider.class == providerClass;
+        public void accept(DiamondStone diamondStone) {
+            this.onChange(diamondStone.getContent());
+        }
+    }
+
+    public static final class DiamondConfigListenerRegister extends ConfigListenerRegisterProxy<DiamondConfigListener> {
+
+        private static final Map<Triple<String, String, ConfigListener>, DiamondConfigListener> listenerMap = new ConcurrentHashMap<>();
+
+        public DiamondConfigListenerRegister(Class<?> configClass, ConfigLoader configLoader) {
+            super(configClass, configLoader);
         }
 
         @Override
-        protected boolean ignoredDefaultValueProvider(Class<? extends Config.DefaultValueProvider> providerClass) {
-            return super.ignoredDefaultValueProvider(providerClass) ||
-                    DiamondConfig.DefaultValueProvider.class == providerClass;
+        protected String defaultListeningKeyset() {
+            return blankThen(super.defaultListeningKeyset(), () -> "DEFAULT_GROUP");
+        }
+
+        @Override
+        protected Map<Triple<String, String, ConfigListener>, DiamondConfigListener> listenerMap() {
+            return listenerMap;
+        }
+
+        @Override
+        protected DiamondConfigListener addConfigListenerProxy(String keyset, String key, ConfigListener listener) {
+            val diamondListener = new DiamondConfigListener(keyset, key, listener);
+            new Thread(() -> DiamondSubscriber.getInstance()
+                    .addDiamondListener(DiamondAxis.makeAxis(keyset, key), diamondListener)).start();
+            return diamondListener;
+        }
+
+        @Override
+        protected void removeConfigListenerProxy(String keyset, String key, DiamondConfigListener listenerProxy) {
+            new Thread(() -> DiamondSubscriber.getInstance()
+                    .removeDiamondListener(DiamondAxis.makeAxis(keyset, key), listenerProxy)).start();
         }
     }
 }

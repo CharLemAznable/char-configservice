@@ -1,8 +1,9 @@
 package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.annotation.DefaultEmptyValue;
+import com.github.charlemaznable.configservice.elf.ConfigListenerProxy;
+import com.github.charlemaznable.configservice.elf.ConfigListenerRegisterProxy;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
-import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public abstract class ConfigProxy<T> implements MethodInterceptor {
     protected final Class<T> configClass;
     protected final Factory factory;
     protected final ConfigLoader configLoader;
+    protected final ConfigListenerRegisterProxy<? extends ConfigListenerProxy> configListenerRegisterProxy;
     private final ExpiringMap<Method, ConfigEntry> entryCache
             = expiringMap(ExpiringEntryLoaderr.from(this::loadConfigEntry));
 
@@ -36,6 +38,7 @@ public abstract class ConfigProxy<T> implements MethodInterceptor {
         this.configClass = configClass;
         this.factory = factory;
         this.configLoader = configLoader;
+        this.configListenerRegisterProxy = buildListenerRegisterProxy(configClass, configLoader);
     }
 
     @Override
@@ -43,6 +46,9 @@ public abstract class ConfigProxy<T> implements MethodInterceptor {
                             MethodProxy methodProxy) throws Throwable {
         if (method.getDeclaringClass().equals(ConfigGetter.class)) {
             return method.invoke(configLoader.getConfigGetter(configClass), args);
+        }
+        if (method.getDeclaringClass().equals(ConfigListenerRegister.class)) {
+            return method.invoke(this.configListenerRegisterProxy, args);
         }
 
         val configEntry = entryCache.get(method);
@@ -60,53 +66,36 @@ public abstract class ConfigProxy<T> implements MethodInterceptor {
         return null;
     }
 
+    protected abstract ConfigListenerRegisterProxy<? extends ConfigListenerProxy> buildListenerRegisterProxy(Class<?> configClass, ConfigLoader configLoader);
+
     protected abstract String loadConfigValue(ConfigGetter configGetter, ConfigSetting configSetting);
 
     private ExpiringValue<ConfigEntry> loadConfigEntry(Method method) {
         val configAnno = configLoader.fetchConfigAnno(method);
-        val keyset = fetchKeyset(method, configAnno);
-        val key = blankThen(fetchKey(method, configAnno), method::getName);
+        val keyset = fetchKeyset(configAnno);
+        val key = blankThen(fetchKey(configAnno), method::getName);
         val configSetting = ConfigSetting.builder().keyset(keyset).key(key).build();
         val defaultEmptyValue = isAnnotated(method, DefaultEmptyValue.class);
-        val defaultValue = fetchDefaultValue(method, configAnno, defaultEmptyValue);
+        val defaultValue = fetchDefaultValue(configAnno, defaultEmptyValue);
         val cacheSeconds = fetchCacheSeconds(configAnno);
         return new ExpiringValue<>(new ConfigEntry(key,
                 loadConfigValue(configLoader.getConfigGetter(configClass), configSetting),
                 defaultValue), cacheSeconds, TimeUnit.SECONDS);
     }
 
-    private String fetchKeyset(Method method, Config configAnno) {
+    private String fetchKeyset(Config configAnno) {
         if (isNull(configAnno)) return "";
-        val providerClass = configAnno.keysetProvider();
-        return substitute(ignoredKeysetProvider(providerClass) ? configAnno.keyset()
-                : FactoryContext.apply(factory, providerClass, p -> p.keyset(configClass, method)));
+        return substitute(configAnno.keyset());
     }
 
-    protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-        return Config.KeysetProvider.class == providerClass;
-    }
-
-    private String fetchKey(Method method, Config configAnno) {
+    private String fetchKey(Config configAnno) {
         if (isNull(configAnno)) return "";
-        val providerClass = configAnno.keyProvider();
-        return substitute(ignoredKeyProvider(providerClass) ? configAnno.key()
-                : FactoryContext.apply(factory, providerClass, p -> p.key(configClass, method)));
+        return substitute(configAnno.key());
     }
 
-    protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-        return Config.KeyProvider.class == providerClass;
-    }
-
-    private String fetchDefaultValue(Method method, Config configAnno, boolean defaultEmptyValue) {
+    private String fetchDefaultValue(Config configAnno, boolean defaultEmptyValue) {
         if (isNull(configAnno)) return defaultEmptyValue ? "" : null;
-        val providerClass = configAnno.defaultValueProvider();
-        String defaultValue = ignoredDefaultValueProvider(providerClass) ? configAnno.defaultValue()
-                : FactoryContext.apply(factory, providerClass, p -> p.defaultValue(configClass, method));
-        return substitute(blankThen(defaultValue, () -> defaultEmptyValue ? "" : null));
-    }
-
-    protected boolean ignoredDefaultValueProvider(Class<? extends Config.DefaultValueProvider> providerClass) {
-        return Config.DefaultValueProvider.class == providerClass;
+        return substitute(blankThen(configAnno.defaultValue(), () -> defaultEmptyValue ? "" : null));
     }
 
     private long fetchCacheSeconds(Config configAnno) {

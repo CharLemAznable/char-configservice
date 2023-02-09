@@ -12,7 +12,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringJUnitConfig(DiamondSpringErrorConfiguration.class)
 public class DiamondSpringErrorTest {
@@ -26,8 +25,6 @@ public class DiamondSpringErrorTest {
         assertNotNull(testWired);
         assertEquals("John", testWired.name());
         assertEquals("John Doe", testWired.full());
-        assertThrows(NullPointerException.class, testWired::longName);
-        assertNull(testWired.longWrap());
         assertEquals("xyz", testWired.abc("xyz"));
         assertNull(testWired.abc(null));
 

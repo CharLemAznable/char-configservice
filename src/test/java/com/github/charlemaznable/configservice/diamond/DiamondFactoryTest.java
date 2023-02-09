@@ -9,17 +9,13 @@ import com.github.charlemaznable.configservice.test.common.TestBaseNone;
 import com.github.charlemaznable.configservice.test.common.TestCache;
 import com.github.charlemaznable.configservice.test.common.TestCacheNone;
 import com.github.charlemaznable.configservice.test.common.TestConfigArg;
-import com.github.charlemaznable.configservice.test.common.TestConfigProps;
 import com.github.charlemaznable.configservice.test.common.TestDefData;
 import com.github.charlemaznable.configservice.test.common.TestDefault;
 import com.github.charlemaznable.configservice.test.common.TestDefaultData;
 import com.github.charlemaznable.configservice.test.common.TestDefaultDataEmpty;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError1;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError2;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError3;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError4;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError5;
 import com.github.charlemaznable.configservice.test.common.TestGetterDefault;
+import com.github.charlemaznable.configservice.test.common.TestListener;
+import com.github.charlemaznable.configservice.test.common.TestListenerRegister;
 import com.github.charlemaznable.configservice.test.common.TestParseData;
 import com.github.charlemaznable.core.config.Arguments;
 import com.github.charlemaznable.core.context.FactoryContext;
@@ -28,6 +24,7 @@ import lombok.val;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.n3r.diamond.client.impl.DiamondSubscriber;
 import org.n3r.diamond.client.impl.MockDiamondServer;
 
 import java.util.concurrent.TimeUnit;
@@ -37,6 +34,7 @@ import static com.github.charlemaznable.core.context.FactoryContext.ReflectFacto
 import static com.github.charlemaznable.core.lang.Await.awaitForMicros;
 import static com.github.charlemaznable.core.lang.Await.awaitForMillis;
 import static com.github.charlemaznable.core.lang.Await.awaitForSeconds;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -333,30 +331,6 @@ public class DiamondFactoryTest {
     }
 
     @Test
-    public void testConfigProps() {
-        MockDiamondServer.setConfigInfo("GROUPGroup", "DataDATA",
-                "name=John\nfull=${this.name} Doe\nlong=${this.full} Richard");
-
-        val stoneProps = diamondLoader.getDiamond(TestConfigProps.class);
-        assertNotNull(stoneProps);
-        assertEquals("John", stoneProps.name());
-        assertEquals("John Doe", stoneProps.full());
-        assertEquals("John Doe Richard", stoneProps.longName());
-        assertEquals("DEFAULTDefault", stoneProps.prop());
-
-        val error1 = diamondLoader.getDiamond(ProvideError1.class);
-        assertThrows(ConfigServiceException.class, error1::prop);
-        val error2 = diamondLoader.getDiamond(ProvideError2.class);
-        assertThrows(ConfigServiceException.class, error2::prop);
-        val error3 = diamondLoader.getDiamond(ProvideError3.class);
-        assertThrows(ConfigServiceException.class, error3::prop);
-        val error4 = diamondLoader.getDiamond(ProvideError4.class);
-        assertThrows(ConfigServiceException.class, error4::prop);
-        val error5 = diamondLoader.getDiamond(ProvideError5.class);
-        assertThrows(ConfigServiceException.class, error5::prop);
-    }
-
-    @Test
     public void testConfigArg() {
         MockDiamondServer.setConfigInfo("Arg", "data",
                 "custom1.key1=value1\ncustom1.key2=value2\ncustom2.key1=value2\ncustom2.key2=value1\n");
@@ -376,5 +350,57 @@ public class DiamondFactoryTest {
         assertEquals("value2", testConfigArg.custom2());
 
         Arguments.initial();
+    }
+
+    @Test
+    public void testConfigListener() {
+        DiamondSubscriber.getInstance().start();
+        MockDiamondServer.setConfigInfo("Listener", "data", "value1");
+
+        val testListenerRegister = diamondLoader.getDiamond(TestListenerRegister.class);
+        val testListener1 = new TestListener();
+        val testListener2 = new TestListener();
+
+        testListenerRegister.addConfigListener(testListener1);
+        testListenerRegister.addConfigListener(testListener2);
+        awaitForSeconds(1);
+
+        MockDiamondServer.updateDiamond("Listener", "data", "value2");
+        await().forever().until(testListener1::isChanged);
+        assertEquals("Listener", testListener1.getKeyset());
+        assertEquals("data", testListener1.getKey());
+        assertEquals("value2", testListener1.getValue());
+        await().forever().until(testListener2::isChanged);
+        assertEquals("Listener", testListener2.getKeyset());
+        assertEquals("data", testListener2.getKey());
+        assertEquals("value2", testListener2.getValue());
+
+        testListener1.reset();
+        testListener2.reset();
+        testListenerRegister.removeConfigListener(testListener2);
+        awaitForSeconds(1);
+
+        MockDiamondServer.updateDiamond("Listener", "data", "value3");
+        await().forever().until(testListener1::isChanged);
+        assertEquals("Listener", testListener1.getKeyset());
+        assertEquals("data", testListener1.getKey());
+        assertEquals("value3", testListener1.getValue());
+        assertFalse(testListener2.isChanged());
+        assertEquals("Listener", testListener2.getKeyset());
+        assertEquals("data", testListener2.getKey());
+        assertEquals("value2", testListener2.getValue());
+
+        testListener1.reset();
+        testListenerRegister.addConfigListener("data2", testListener1);
+        awaitForSeconds(1);
+
+        MockDiamondServer.updateDiamond("Listener", "data2", "value4");
+        await().forever().until(testListener1::isChanged);
+        assertEquals("Listener", testListener1.getKeyset());
+        assertEquals("data2", testListener1.getKey());
+        assertEquals("value4", testListener1.getValue());
+
+        testListenerRegister.addConfigListener("", testListener1);
+        testListenerRegister.removeConfigListener("", testListener1);
     }
 }

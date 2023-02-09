@@ -25,22 +25,14 @@ public class DiamondSpringSubTest {
         assertNotNull(testWired);
         assertEquals("Joe", testWired.name());
         assertEquals("Joe Doe", testWired.full());
-        assertEquals("Joe Doe Richard", testWired.longName());
-        assertEquals("Joe Doe Richard", testWired.longWrap());
         assertEquals("xyz", testWired.abc("xyz"));
         assertNull(testWired.abc(null));
-        assertEquals("springspring&springspring&guiceguice",
-                testWired.defaultInContext());
 
         val testWiredSub = SpringContext.getBean(TestWiredSub.class);
         assertNotNull(testWiredSub);
         assertEquals("Joe", testWiredSub.name());
         assertEquals("Joe Doe", testWiredSub.full());
-        assertEquals("Joe Doe Richard", testWiredSub.longName());
-        assertEquals("Joe Doe Richard", testWiredSub.longWrap());
         assertEquals("xyz", testWiredSub.abc("xyz"));
         assertNull(testWiredSub.abc(null));
-        assertEquals("springspring&springspring&guiceguice",
-                testWiredSub.defaultInContext());
     }
 }

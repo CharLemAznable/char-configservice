@@ -2,7 +2,6 @@ package com.github.charlemaznable.configservice;
 
 import com.github.charlemaznable.configservice.elf.ConfigServiceException;
 import com.github.charlemaznable.configservice.elf.ConfigSetting;
-import com.github.charlemaznable.core.context.FactoryContext;
 import com.github.charlemaznable.core.lang.EasyEnhancer;
 import com.github.charlemaznable.core.lang.ExpiringEntryLoaderr;
 import com.github.charlemaznable.core.lang.Factory;
@@ -50,6 +49,11 @@ public abstract class ConfigLoader {
         return configGetterCache.get(configClass);
     }
 
+    public ConfigGetter buildConfigGetter(String keyset, String key) {
+        val configSetting = ConfigSetting.builder().keyset(keyset).key(key).build();
+        return buildConfigGetter(configSetting);
+    }
+
     public abstract Class<? extends Annotation>[] annotationClasses();
 
     protected void checkClassConfig(Class<?> configClass) {
@@ -63,6 +67,13 @@ public abstract class ConfigLoader {
         return getMergedAnnotation(element, Config.class);
     }
 
+    public <T> ConfigSetting fetchConfigSetting(Class<T> configClass) {
+        val configAnno = checkNotNull(fetchConfigAnno(configClass));
+        return ConfigSetting.builder()
+                .keyset(fetchKeyset(configAnno))
+                .key(fetchKey(configAnno)).build();
+    }
+
     protected abstract ConfigGetter buildConfigGetter(ConfigSetting configSetting);
 
     @Nonnull
@@ -72,7 +83,7 @@ public abstract class ConfigLoader {
 
         val configProxy = buildConfigProxy(configClass, factory);
         return EasyEnhancer.create(ConfigDummy.class,
-                new Class[]{configClass, ConfigGetter.class},
+                new Class[]{configClass, ConfigGetter.class, ConfigListenerRegister.class},
                 method -> {
                     if (method.isDefault() || method.getDeclaringClass()
                             .equals(ConfigDummy.class)) return 1;
@@ -84,31 +95,17 @@ public abstract class ConfigLoader {
 
     private <T> ExpiringValue<ConfigGetter> loadConfigGetter(Class<T> configClass) {
         val configAnno = checkNotNull(fetchConfigAnno(configClass));
-        val configSetting = ConfigSetting.builder()
-                .keyset(fetchKeyset(configClass, configAnno))
-                .key(fetchKey(configClass, configAnno)).build();
+        val configGetter = buildConfigGetter(fetchKeyset(configAnno), fetchKey(configAnno));
         val cacheSeconds = Math.max(0, configAnno.cacheSeconds());
-        return new ExpiringValue<>(buildConfigGetter(configSetting), cacheSeconds, TimeUnit.SECONDS);
+        return new ExpiringValue<>(configGetter, cacheSeconds, TimeUnit.SECONDS);
     }
 
-    private <T> String fetchKeyset(Class<T> configClass, Config configAnno) {
-        val providerClass = configAnno.keysetProvider();
-        return substitute(ignoredKeysetProvider(providerClass) ? configAnno.keyset()
-                : FactoryContext.apply(factory, providerClass, p -> p.keyset(configClass)));
+    private String fetchKeyset(Config configAnno) {
+        return substitute(configAnno.keyset());
     }
 
-    protected boolean ignoredKeysetProvider(Class<? extends Config.KeysetProvider> providerClass) {
-        return Config.KeysetProvider.class == providerClass;
-    }
-
-    private <T> String fetchKey(Class<T> configClass, Config configAnno) {
-        val providerClass = configAnno.keyProvider();
-        return substitute(ignoredKeyProvider(providerClass) ? configAnno.key()
-                : FactoryContext.apply(factory, providerClass, p -> p.key(configClass)));
-    }
-
-    protected boolean ignoredKeyProvider(Class<? extends Config.KeyProvider> providerClass) {
-        return Config.KeyProvider.class == providerClass;
+    private String fetchKey(Config configAnno) {
+        return substitute(configAnno.key());
     }
 
     @AllArgsConstructor

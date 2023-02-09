@@ -13,17 +13,13 @@ import com.github.charlemaznable.configservice.test.common.TestBaseNone;
 import com.github.charlemaznable.configservice.test.common.TestCache;
 import com.github.charlemaznable.configservice.test.common.TestCacheNone;
 import com.github.charlemaznable.configservice.test.common.TestConfigArg;
-import com.github.charlemaznable.configservice.test.common.TestConfigProps;
 import com.github.charlemaznable.configservice.test.common.TestDefData;
 import com.github.charlemaznable.configservice.test.common.TestDefault;
 import com.github.charlemaznable.configservice.test.common.TestDefaultData;
 import com.github.charlemaznable.configservice.test.common.TestDefaultDataEmpty;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError1;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError2;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError3;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError4;
-import com.github.charlemaznable.configservice.test.common.TestError.ProvideError5;
 import com.github.charlemaznable.configservice.test.common.TestGetterDefault;
+import com.github.charlemaznable.configservice.test.common.TestListener;
+import com.github.charlemaznable.configservice.test.common.TestListenerRegister;
 import com.github.charlemaznable.configservice.test.common.TestParseData;
 import com.github.charlemaznable.core.config.Arguments;
 import com.github.charlemaznable.core.context.FactoryContext;
@@ -404,36 +400,6 @@ public class ApolloFactoryTest implements ConfigChangeListener {
     }
 
     @Test
-    public void testConfigProps() {
-        ConfigService.getConfig("GROUPGroup").addChangeListener(this);
-
-        changed = false;
-        MockApolloServer.addOrModifyProperty("GROUPGroup", "DataDATA",
-                "name=John\nfull=${name} Doe\nlong=${full} Richard");
-        await().forever().until(() -> changed);
-
-        val stoneProps = apolloLoader.getApollo(TestConfigProps.class);
-        assertNotNull(stoneProps);
-        assertEquals("John", stoneProps.name());
-        assertEquals("John Doe", stoneProps.full());
-        assertEquals("John Doe Richard", stoneProps.longName());
-        assertEquals("DEFAULTDefault", stoneProps.prop());
-
-        val error1 = apolloLoader.getApollo(ProvideError1.class);
-        assertThrows(ConfigServiceException.class, error1::prop);
-        val error2 = apolloLoader.getApollo(ProvideError2.class);
-        assertThrows(ConfigServiceException.class, error2::prop);
-        val error3 = apolloLoader.getApollo(ProvideError3.class);
-        assertThrows(ConfigServiceException.class, error3::prop);
-        val error4 = apolloLoader.getApollo(ProvideError4.class);
-        assertThrows(ConfigServiceException.class, error4::prop);
-        val error5 = apolloLoader.getApollo(ProvideError5.class);
-        assertThrows(ConfigServiceException.class, error5::prop);
-
-        ConfigService.getConfig("GROUPGroup").removeChangeListener(this);
-    }
-
-    @Test
     public void testConfigArg() {
         ConfigService.getConfig("Arg").addChangeListener(this);
 
@@ -458,5 +424,62 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         Arguments.initial();
         ConfigService.getConfig("Arg").removeChangeListener(this);
+    }
+
+    @Test
+    public void testConfigListener() {
+        ConfigService.getConfig("Listener").addChangeListener(this);
+
+        changed = false;
+        MockApolloServer.addOrModifyProperty("Listener", "data", "value1");
+        await().forever().until(() -> changed);
+
+        val testListenerRegister = apolloLoader.getApollo(TestListenerRegister.class);
+        val testListener1 = new TestListener();
+        val testListener2 = new TestListener();
+
+        testListenerRegister.addConfigListener(testListener1);
+        testListenerRegister.addConfigListener(testListener2);
+        awaitForSeconds(1);
+
+        MockApolloServer.addOrModifyProperty("Listener", "data", "value2");
+        await().forever().until(testListener1::isChanged);
+        assertEquals("Listener", testListener1.getKeyset());
+        assertEquals("data", testListener1.getKey());
+        assertEquals("value2", testListener1.getValue());
+        await().forever().until(testListener2::isChanged);
+        assertEquals("Listener", testListener2.getKeyset());
+        assertEquals("data", testListener2.getKey());
+        assertEquals("value2", testListener2.getValue());
+
+        testListener1.reset();
+        testListener2.reset();
+        testListenerRegister.removeConfigListener(testListener2);
+        awaitForSeconds(1);
+
+        MockApolloServer.addOrModifyProperty("Listener", "data", "value3");
+        await().forever().until(testListener1::isChanged);
+        assertEquals("Listener", testListener1.getKeyset());
+        assertEquals("data", testListener1.getKey());
+        assertEquals("value3", testListener1.getValue());
+        assertFalse(testListener2.isChanged());
+        assertEquals("Listener", testListener2.getKeyset());
+        assertEquals("data", testListener2.getKey());
+        assertEquals("value2", testListener2.getValue());
+
+        testListener1.reset();
+        testListenerRegister.addConfigListener("data2", testListener1);
+        awaitForSeconds(1);
+
+        MockApolloServer.addOrModifyProperty("Listener", "data2", "value4");
+        await().forever().until(testListener1::isChanged);
+        assertEquals("Listener", testListener1.getKeyset());
+        assertEquals("data2", testListener1.getKey());
+        assertEquals("value4", testListener1.getValue());
+
+        testListenerRegister.addConfigListener("", testListener1);
+        testListenerRegister.removeConfigListener("", testListener1);
+
+        ConfigService.getConfig("Listener").removeChangeListener(this);
     }
 }

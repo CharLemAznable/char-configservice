@@ -8,20 +8,15 @@ import com.github.charlemaznable.configservice.elf.ConfigServiceException;
 import com.github.charlemaznable.configservice.test.TestWired;
 import com.github.charlemaznable.configservice.test.TestWiredConcrete;
 import com.github.charlemaznable.configservice.test.TestWiredNone;
-import com.github.charlemaznable.configservice.test.TestWiredPropertyName;
 import com.github.charlemaznable.core.config.Arguments;
 import com.github.charlemaznable.core.guice.GuiceFactory;
-import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
-import com.google.inject.util.Providers;
 import lombok.val;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ClassUtils;
-
-import java.lang.reflect.Method;
 
 import static java.util.Collections.emptyList;
 import static org.awaitility.Awaitility.await;
@@ -66,35 +61,20 @@ public class ApolloGuiceTest {
     public void testWired() {
         Arguments.initial("--ConfigService=apollo");
 
-        val configModular = new ConfigModular(new AbstractModule() {
-            @Override
-            public void configure() {
-                bind(TestWiredPropertyName.class).toProvider(Providers.of(new TestWiredPropertyName() {
-                    @Override
-                    public String propertyName(Class<?> configClass, Method method) {
-                        return "long";
-                    }
-                }));
-            }
-        }).bindClasses(TestWired.class, TestWiredConcrete.class, TestWiredNone.class);
+        val configModular = new ConfigModular()
+                .bindClasses(TestWired.class, TestWiredConcrete.class, TestWiredNone.class);
         val injector = Guice.createInjector(configModular.createModule());
 
         val testWired = injector.getInstance(TestWired.class);
         assertNotNull(testWired);
         assertEquals(NAME, testWired.name());
         assertEquals(FULL, testWired.full());
-        assertEquals(LONG, testWired.longName());
-        assertEquals(LONG, testWired.longWrap());
         assertEquals(XYZ, testWired.abc(XYZ));
         assertNull(testWired.abc(null));
-        assertEquals(GUICE_CONTEXT, testWired.defaultInContext());
         assertEquals(NAME, testWired.name());
         assertEquals(FULL, testWired.full());
-        assertEquals(LONG, testWired.longName());
-        assertEquals(LONG, testWired.longWrap());
         assertEquals(XYZ, testWired.abc(XYZ));
         assertNull(testWired.abc(null));
-        assertEquals(GUICE_CONTEXT, testWired.defaultInContext());
 
         val testWiredConcrete = injector.getInstance(TestWiredConcrete.class);
         assertNull(testWiredConcrete);
@@ -115,8 +95,6 @@ public class ApolloGuiceTest {
         assertNotNull(testWired);
         assertEquals(NAME, testWired.name());
         assertEquals(FULL, testWired.full());
-        assertThrows(NullPointerException.class, testWired::longName);
-        assertNull(testWired.longWrap());
         assertEquals(XYZ, testWired.abc(XYZ));
         assertNull(testWired.abc(null));
 
@@ -135,8 +113,6 @@ public class ApolloGuiceTest {
         assertNotNull(testWired);
         assertEquals(NAME, testWired.name());
         assertEquals(FULL, testWired.full());
-        assertThrows(NullPointerException.class, testWired::longName);
-        assertNull(testWired.longWrap());
         assertEquals(XYZ, testWired.abc(XYZ));
         assertNull(testWired.abc(null));
 
@@ -154,37 +130,23 @@ public class ApolloGuiceTest {
 
     @Test
     public void testWiredSub() {
-        val apolloModular = new ApolloModular(new AbstractModule() {
-            @Override
-            public void configure() {
-                bind(TestWiredPropertyName.class).toProvider(Providers.of(new TestWiredPropertyName() {
-                    @Override
-                    public String propertyName(Class<?> configClass, Method method) {
-                        return "long";
-                    }
-                }));
-            }
-        }).scanPackages(ClassUtils.getPackageName(TestWiredSub.class)).scanPackageClasses(TestWiredSub.class);
+        val apolloModular = new ApolloModular()
+                .scanPackages(ClassUtils.getPackageName(TestWiredSub.class))
+                .scanPackageClasses(TestWiredSub.class);
         val injector = Guice.createInjector(apolloModular.createModule());
 
         val testWired = injector.getInstance(TestWired.class);
         assertNotNull(testWired);
         assertEquals(SUB_NAME, testWired.name());
         assertEquals(SUB_FULL, testWired.full());
-        assertEquals(SUB_LONG, testWired.longName());
-        assertEquals(SUB_LONG, testWired.longWrap());
         assertEquals(XYZ, testWired.abc(XYZ));
         assertNull(testWired.abc(null));
-        assertEquals(GUICE_CONTEXT, testWired.defaultInContext());
 
         val testWiredSub = injector.getInstance(TestWiredSub.class);
         assertNotNull(testWiredSub);
         assertEquals(SUB_NAME, testWiredSub.name());
         assertEquals(SUB_FULL, testWiredSub.full());
-        assertEquals(SUB_LONG, testWiredSub.longName());
-        assertEquals(SUB_LONG, testWiredSub.longWrap());
         assertEquals(XYZ, testWiredSub.abc(XYZ));
         assertNull(testWiredSub.abc(null));
-        assertEquals(GUICE_CONTEXT, testWiredSub.defaultInContext());
     }
 }
