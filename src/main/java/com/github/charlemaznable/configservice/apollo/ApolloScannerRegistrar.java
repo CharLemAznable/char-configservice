@@ -10,4 +10,9 @@ public final class ApolloScannerRegistrar extends AbstractConfigScannerRegistrar
     public ApolloScannerRegistrar() {
         super(ApolloScan.class, apolloLoader(springFactory()));
     }
+
+    public static ConfigFactoryBean buildFactoryBean(Class<?> xyzInterface) {
+        return AbstractConfigScannerRegistrar.buildFactoryBean(
+                xyzInterface, apolloLoader(springFactory()));
+    }
 }

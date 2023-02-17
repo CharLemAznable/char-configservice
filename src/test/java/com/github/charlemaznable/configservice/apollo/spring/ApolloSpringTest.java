@@ -2,6 +2,7 @@ package com.github.charlemaznable.configservice.apollo.spring;
 
 import com.ctrip.framework.apollo.ConfigService;
 import com.github.charlemaznable.apollo.MockApolloServer;
+import com.github.charlemaznable.configservice.TestUnWired;
 import com.github.charlemaznable.configservice.test.TestWired;
 import com.github.charlemaznable.configservice.test.TestWiredConcrete;
 import com.github.charlemaznable.configservice.test.TestWiredNone;
@@ -43,5 +44,12 @@ public class ApolloSpringTest {
 
         val testWiredNone = SpringContext.getBean(TestWiredNone.class);
         assertNull(testWiredNone);
+
+        val testUnWired = SpringContext.getBean(TestUnWired.class);
+        assertNotNull(testUnWired);
+        assertEquals("John", testUnWired.name());
+        assertEquals("John Doe", testUnWired.full());
+        assertEquals("xyz", testUnWired.abc("xyz"));
+        assertNull(testUnWired.abc(null));
     }
 }
