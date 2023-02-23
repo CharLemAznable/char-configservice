@@ -46,6 +46,11 @@
 
     <properties>
         <sonar.projectKey>CharLemAznable_char-configservice</sonar.projectKey>
+        <sonar.exclusions>
+            src/main/java/com/github/charlemaznable/configservice/ConfigScan.java,
+            src/main/java/com/github/charlemaznable/configservice/apollo/ApolloScan.java,
+            src/main/java/com/github/charlemaznable/configservice/diamond/DiamondScan.java
+        </sonar.exclusions>
 
         <char-elves.version>2023.0.2-SNAPSHOT</char-elves.version>
 
