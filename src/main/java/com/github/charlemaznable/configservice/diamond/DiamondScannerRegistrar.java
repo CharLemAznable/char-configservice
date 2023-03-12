@@ -10,4 +10,9 @@ public final class DiamondScannerRegistrar extends AbstractConfigScannerRegistra
     public DiamondScannerRegistrar() {
         super(DiamondScan.class, diamondLoader(springFactory()));
     }
+
+    public static ConfigFactoryBean buildFactoryBean(Class<?> xyzInterface) {
+        return AbstractConfigScannerRegistrar.buildFactoryBean(
+                xyzInterface, diamondLoader(springFactory()));
+    }
 }

@@ -1,8 +1,12 @@
 package com.github.charlemaznable.configservice.apollo.spring;
 
 import com.github.charlemaznable.apollo.MockApolloServer;
+import com.github.charlemaznable.configservice.TestUnWired;
 import com.github.charlemaznable.configservice.apollo.ApolloScan;
+import com.github.charlemaznable.configservice.apollo.ApolloScannerRegistrar;
+import com.github.charlemaznable.configservice.impl.AbstractConfigScannerRegistrar;
 import com.github.charlemaznable.core.spring.ElvesImport;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -16,6 +20,11 @@ import static org.joor.Reflect.on;
 @ElvesImport
 @ApolloScan
 public class ApolloSpringSubConfiguration {
+
+    @Bean
+    public AbstractConfigScannerRegistrar.ConfigFactoryBean testUnWired() {
+        return ApolloScannerRegistrar.buildFactoryBean(TestUnWired.class);
+    }
 
     @PostConstruct
     public void postConstruct() {

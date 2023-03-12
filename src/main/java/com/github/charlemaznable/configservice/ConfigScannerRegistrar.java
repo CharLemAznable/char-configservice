@@ -10,4 +10,9 @@ public final class ConfigScannerRegistrar extends AbstractConfigScannerRegistrar
     public ConfigScannerRegistrar() {
         super(ConfigScan.class, configLoader(springFactory()));
     }
+
+    public static ConfigFactoryBean buildFactoryBean(Class<?> xyzInterface) {
+        return AbstractConfigScannerRegistrar.buildFactoryBean(
+                xyzInterface, configLoader(springFactory()));
+    }
 }
