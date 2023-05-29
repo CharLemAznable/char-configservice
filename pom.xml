@@ -47,12 +47,15 @@
     <properties>
         <sonar.projectKey>CharLemAznable_char-configservice</sonar.projectKey>
         <sonar.exclusions>
+            src/main/java/com/github/charlemaznable/configservice/ConfigFactory.java,
             src/main/java/com/github/charlemaznable/configservice/ConfigScan.java,
             src/main/java/com/github/charlemaznable/configservice/apollo/ApolloScan.java,
-            src/main/java/com/github/charlemaznable/configservice/diamond/DiamondScan.java
+            src/main/java/com/github/charlemaznable/configservice/diamond/DiamondScan.java,
+            src/main/java/com/github/charlemaznable/configservice/etcd/EtcdScan.java
         </sonar.exclusions>
 
         <char-elves.version>2023.1.2-SNAPSHOT</char-elves.version>
+        <etcdconf-client.version>2023.1.2-SNAPSHOT</etcdconf-client.version>
 
         <apollo-mockserver.version>2023.1.2-SNAPSHOT</apollo-mockserver.version>
         <logback-dendrobe.version>2023.1.2-SNAPSHOT</logback-dendrobe.version>
@@ -73,6 +76,12 @@
             <groupId>com.github.charlemaznable</groupId>
             <artifactId>char-elves</artifactId>
             <version>${char-elves.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.charlemaznable</groupId>
+            <artifactId>etcdconf-client</artifactId>
+            <version>${etcdconf-client.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.moandjiezana.toml</groupId>

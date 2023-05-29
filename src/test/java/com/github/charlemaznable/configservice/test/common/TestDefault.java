@@ -3,12 +3,14 @@ package com.github.charlemaznable.configservice.test.common;
 import com.github.charlemaznable.configservice.annotation.DefaultEmptyValue;
 import com.github.charlemaznable.configservice.apollo.ApolloConfig;
 import com.github.charlemaznable.configservice.diamond.DiamondConfig;
+import com.github.charlemaznable.configservice.etcd.EtcdConfig;
 import com.google.common.base.Splitter;
 
 import java.util.List;
 
 @ApolloConfig("DEFAULT_DATA")
 @DiamondConfig("DEFAULT_DATA")
+@EtcdConfig("DEFAULT_DATA")
 public interface TestDefault {
 
     String name();
@@ -17,6 +19,7 @@ public interface TestDefault {
 
     @ApolloConfig("long")
     @DiamondConfig("long")
+    @EtcdConfig("long")
     String longName();
 
     default List<String> longSplit() {
@@ -26,6 +29,7 @@ public interface TestDefault {
 
     @ApolloConfig(defaultValue = "abc")
     @DiamondConfig(defaultValue = "abc")
+    @EtcdConfig(defaultValue = "abc")
     String abc(String defaultValue);
 
     String xyzNull();
@@ -36,12 +40,14 @@ public interface TestDefault {
     @DefaultEmptyValue
     @ApolloConfig
     @DiamondConfig
+    @EtcdConfig
     String xyzEmpty2();
 
     int count(Integer defaultValue);
 
     @ApolloConfig(defaultValue = "1")
     @DiamondConfig(defaultValue = "1")
+    @EtcdConfig(defaultValue = "1")
     int count1();
 
     boolean testMode();
@@ -54,30 +60,37 @@ public interface TestDefault {
 
     @ApolloConfig(defaultValue = "10")
     @DiamondConfig(defaultValue = "10")
+    @EtcdConfig(defaultValue = "10")
     short shortValue();
 
     @ApolloConfig(defaultValue = "200")
     @DiamondConfig(defaultValue = "200")
+    @EtcdConfig(defaultValue = "200")
     int intValue();
 
     @ApolloConfig(defaultValue = "3000")
     @DiamondConfig(defaultValue = "3000")
+    @EtcdConfig(defaultValue = "3000")
     long longValue();
 
     @ApolloConfig(defaultValue = "40000")
     @DiamondConfig(defaultValue = "40000")
+    @EtcdConfig(defaultValue = "40000")
     float floatValue();
 
     @ApolloConfig(defaultValue = "5")
     @DiamondConfig(defaultValue = "5")
+    @EtcdConfig(defaultValue = "5")
     double doubleValue();
 
     @ApolloConfig(defaultValue = "97")
     @DiamondConfig(defaultValue = "97")
+    @EtcdConfig(defaultValue = "97")
     byte byteValue();
 
     @ApolloConfig(defaultValue = "a")
     @DiamondConfig(defaultValue = "a")
+    @EtcdConfig(defaultValue = "a")
     char charValue();
 
     short shortValueDefault();

@@ -34,12 +34,9 @@ public class ApolloGuiceTest {
     private static final String SUB_CONTENT = "name=Joe\nfull=Joe Doe\nlong=Joe Doe Richard";
     private static final String NAME = "John";
     private static final String FULL = "John Doe";
-    private static final String LONG = "John Doe Richard";
     private static final String XYZ = "xyz";
     private static final String SUB_NAME = "Joe";
     private static final String SUB_FULL = "Joe Doe";
-    private static final String SUB_LONG = "Joe Doe Richard";
-    private static final String GUICE_CONTEXT = "guiceguice&springspring&guiceguice";
 
     @BeforeAll
     public static void beforeAll() {

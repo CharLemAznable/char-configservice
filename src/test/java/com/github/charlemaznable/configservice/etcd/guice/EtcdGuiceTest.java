@@ -1,35 +1,37 @@
-package com.github.charlemaznable.configservice.diamond.guice;
+package com.github.charlemaznable.configservice.etcd.guice;
 
 import com.github.charlemaznable.configservice.ConfigModular;
-import com.github.charlemaznable.configservice.diamond.DiamondModular;
 import com.github.charlemaznable.configservice.elf.ConfigServiceException;
+import com.github.charlemaznable.configservice.etcd.EtcdModular;
 import com.github.charlemaznable.configservice.test.TestWired;
 import com.github.charlemaznable.configservice.test.TestWiredConcrete;
 import com.github.charlemaznable.configservice.test.TestWiredNone;
 import com.github.charlemaznable.core.config.Arguments;
 import com.github.charlemaznable.core.guice.GuiceFactory;
+import com.github.charlemaznable.etcdconf.EtcdConfigService;
+import com.github.charlemaznable.etcdconf.MockEtcdServer;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import lombok.val;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.n3r.diamond.client.impl.MockDiamondServer;
 import org.springframework.util.ClassUtils;
 
 import static java.util.Collections.emptyList;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DiamondGuiceTest {
+public class EtcdGuiceTest {
 
-    private static final String DEFAULT_GROUP = "DEFAULT_GROUP";
-    private static final String DEFAULT_DATA = "DEFAULT_DATA";
+    private static final String DEFAULT_NAMESPACE = "application";
+    private static final String DEFAULT_PROPERTYNAME = "DEFAULT_DATA";
     private static final String SUB_DATA = "SUB_DATA";
-    private static final String DEFAULT_CONTENT = "name=John\nfull=${this.name} Doe\nlong=${this.full} Richard";
-    private static final String SUB_CONTENT = "name=Joe\nfull=${this.name} Doe\nlong=${this.full} Richard";
+    private static final String DEFAULT_CONTENT = "name=John\nfull=John Doe\nlong=John Doe Richard";
+    private static final String SUB_CONTENT = "name=Joe\nfull=Joe Doe\nlong=Joe Doe Richard";
     private static final String NAME = "John";
     private static final String FULL = "John Doe";
     private static final String XYZ = "xyz";
@@ -38,19 +40,23 @@ public class DiamondGuiceTest {
 
     @BeforeAll
     public static void beforeAll() {
-        MockDiamondServer.setUpMockServer();
-        MockDiamondServer.setConfigInfo(DEFAULT_GROUP, DEFAULT_DATA, DEFAULT_CONTENT);
-        MockDiamondServer.setConfigInfo(DEFAULT_GROUP, SUB_DATA, SUB_CONTENT);
+        MockEtcdServer.setUpMockServer();
+        MockEtcdServer.addOrModifyProperty(DEFAULT_NAMESPACE, DEFAULT_PROPERTYNAME, DEFAULT_CONTENT);
+        MockEtcdServer.addOrModifyProperty(DEFAULT_NAMESPACE, SUB_DATA, SUB_CONTENT);
+        await().forever().untilAsserted(() -> assertEquals(DEFAULT_CONTENT,
+                EtcdConfigService.getConfig(DEFAULT_NAMESPACE).getString(DEFAULT_PROPERTYNAME, "")));
+        await().forever().untilAsserted(() -> assertEquals(SUB_CONTENT,
+                EtcdConfigService.getConfig(DEFAULT_NAMESPACE).getString(SUB_DATA, "")));
     }
 
     @AfterAll
     public static void afterAll() {
-        MockDiamondServer.tearDownMockServer();
+        MockEtcdServer.tearDownMockServer();
     }
 
     @Test
     public void testWired() {
-        Arguments.initial("--ConfigService=diamond");
+        Arguments.initial("--ConfigService=etcd");
 
         val configModular = new ConfigModular()
                 .bindClasses(TestWired.class, TestWiredConcrete.class, TestWiredNone.class);
@@ -78,9 +84,9 @@ public class DiamondGuiceTest {
 
     @Test
     public void testWiredError() {
-        val diamondModular = new DiamondModular(emptyList()).bindClasses(
+        val etcdModular = new EtcdModular(emptyList()).bindClasses(
                 TestWired.class, TestWiredConcrete.class, TestWiredNone.class);
-        val injector = Guice.createInjector(diamondModular.createModule());
+        val injector = Guice.createInjector(etcdModular.createModule());
 
         val testWired = injector.getInstance(TestWired.class);
         assertNotNull(testWired);
@@ -98,9 +104,9 @@ public class DiamondGuiceTest {
 
     @Test
     public void testWiredNaked() {
-        val diamondModular = new DiamondModular();
+        val etcdModular = new EtcdModular();
 
-        val testWired = diamondModular.getDiamond(TestWired.class);
+        val testWired = etcdModular.getEtcd(TestWired.class);
         assertNotNull(testWired);
         assertEquals(NAME, testWired.name());
         assertEquals(FULL, testWired.full());
@@ -108,12 +114,12 @@ public class DiamondGuiceTest {
         assertNull(testWired.abc(null));
 
         assertThrows(ConfigServiceException.class,
-                () -> diamondModular.getDiamond(TestWiredConcrete.class));
+                () -> etcdModular.getEtcd(TestWiredConcrete.class));
 
         assertThrows(ConfigServiceException.class,
-                () -> diamondModular.getDiamond(TestWiredNone.class));
+                () -> etcdModular.getEtcd(TestWiredNone.class));
 
-        val injector = Guice.createInjector(diamondModular.createModule());
+        val injector = Guice.createInjector(etcdModular.createModule());
         assertThrows(ConfigurationException.class, () ->
                 injector.getInstance(TestWired.class));
         assertNull(new GuiceFactory(injector).build(TestWired.class));
@@ -121,10 +127,10 @@ public class DiamondGuiceTest {
 
     @Test
     public void testWiredSub() {
-        val diamondModular = new DiamondModular()
-                .scanPackages(ClassUtils.getPackageName(TestWiredSub.class))
-                .scanPackageClasses(TestWiredSub.class);
-        val injector = Guice.createInjector(diamondModular.createModule());
+        val etcdModular = new EtcdModular()
+                .scanPackages(ClassUtils.getPackageName(com.github.charlemaznable.configservice.etcd.guice.TestWiredSub.class))
+                .scanPackageClasses(com.github.charlemaznable.configservice.etcd.guice.TestWiredSub.class);
+        val injector = Guice.createInjector(etcdModular.createModule());
 
         val testWired = injector.getInstance(TestWired.class);
         assertNotNull(testWired);
