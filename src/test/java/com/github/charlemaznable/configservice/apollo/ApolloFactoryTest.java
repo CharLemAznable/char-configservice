@@ -248,7 +248,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
 
         changed = false;
         MockApolloServer.addOrModifyProperty("application", "DEFAULT_DATA",
-                "name=John\nfull=${name} Doe\nlong=${full} Richard");
+                "name=John\nfull=${name} Doe\nlong=${full} Richard\ndura=3S30");
         await().forever().until(() -> changed);
 
         val testGetterDefault = apolloLoader.getApollo(TestGetterDefault.class);
@@ -264,6 +264,7 @@ public class ApolloFactoryTest implements ConfigChangeListener {
         assertEquals(0, testGetterDefault.getByte("name"));
         assertFalse(testGetterDefault.getBoolean("name"));
         assertEquals(0, testGetterDefault.getDuration("name"));
+        assertEquals(3030, testGetterDefault.getDuration("dura"));
 
         awaitForMillis(100);
 

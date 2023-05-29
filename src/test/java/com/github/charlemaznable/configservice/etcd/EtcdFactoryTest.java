@@ -247,7 +247,7 @@ public class EtcdFactoryTest implements EtcdConfigChangeListener {
 
         changed = false;
         MockEtcdServer.addOrModifyProperty("application", "DEFAULT_DATA",
-                "name=John\nfull=${name} Doe\nlong=${full} Richard");
+                "name=John\nfull=${name} Doe\nlong=${full} Richard\ndura=3S30");
         await().forever().until(() -> changed);
 
         val testGetterDefault = etcdLoader.getEtcd(TestGetterDefault.class);
@@ -263,6 +263,7 @@ public class EtcdFactoryTest implements EtcdConfigChangeListener {
         assertEquals(0, testGetterDefault.getByte("name"));
         assertFalse(testGetterDefault.getBoolean("name"));
         assertEquals(0, testGetterDefault.getDuration("name"));
+        assertEquals(3030, testGetterDefault.getDuration("dura"));
 
         awaitForMillis(100);
 
