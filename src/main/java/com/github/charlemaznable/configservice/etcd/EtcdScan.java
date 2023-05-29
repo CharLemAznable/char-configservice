@@ -1,6 +1,5 @@
 package com.github.charlemaznable.configservice.etcd;
 
-import com.github.charlemaznable.configservice.apollo.ApolloScannerRegistrar;
 import com.github.charlemaznable.core.spring.FullBeanNameGenerator;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(ApolloScannerRegistrar.class)
+@Import(EtcdScannerRegistrar.class)
 public @interface EtcdScan {
 
     String[] value() default {};

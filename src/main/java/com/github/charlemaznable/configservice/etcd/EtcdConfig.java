@@ -24,7 +24,7 @@ public @interface EtcdConfig {
     @AliasFor("value")
     String key() default "";
 
-    @AliasFor("propertyName")
+    @AliasFor("key")
     String value() default "";
 
     /**
