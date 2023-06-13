@@ -114,10 +114,16 @@ String value2 = myConfig.key2(); // value2: "value2"
 
 将java代码中的```@ApolloConfig```替换为```@DiamondConfig```, 将```ApolloFactory.getApollo()```替换为```DiamondFactory.getDiamond()```即可.
 
+##### 1.3. 读取etcd配置
+
+与apollo配置类似, etcd配置的```namespace:key```对应apollo配置的```namespace:propertyName```.
+
+将java代码中的```@ApolloConfig```替换为```@EtcdConfig```, 将```ApolloFactory.getApollo()```替换为```EtcdFactory.getEtcd()```即可.
+
 #### 2. 配置坐标的指定
 
-编写配置客户端接口时, 需要使用```@ApolloConfig```/```@DiamondConfig```注解, 在接口上标识其为配置客户端接口, 在接口或方法上指定配置读取的坐标.
-* 当注解在接口上时, ```namespace```/```group```的默认值为```"application"```/```"DEFAULT_GROUP"```, ```propertyName```/```dataId```/```value```的默认值为```""```.
+编写配置客户端接口时, 需要使用```@ApolloConfig```/```@DiamondConfig```/```@EtcdConfig```注解, 在接口上标识其为配置客户端接口, 在接口或方法上指定配置读取的坐标.
+* 当注解在接口上时, ```namespace```/```group```/```namespace```的默认值为```"application"```/```"DEFAULT_GROUP"```/```"application"```, ```propertyName```/```dataId```/```key```/```value```的默认值为```""```.
 * 当注解在方法上时, 上述注解属性的默认值都是```""```.
 
 ##### 2.1. 默认坐标
@@ -125,9 +131,11 @@ String value2 = myConfig.key2(); // value2: "value2"
 ```java
 @ApolloConfig
 @DiamondConfig
+@EtcdConfig
 public interface MyConfig {
     @ApolloConfig // 可省略
     @DiamondConfig // 可省略
+    @EtcdConfig // 可省略
     String value();
 }
 ```
@@ -141,6 +149,10 @@ propertyName: value
 # diamond
 group: DEFAULT_GROUP
 dataId: value
+
+# etcd
+namespace: application
+key: value
 
 String value();方法返回配置完整内容字符串
 ```
@@ -150,9 +162,11 @@ String value();方法返回配置完整内容字符串
 ```java
 @ApolloConfig(namespace = "XXX")
 @DiamondConfig(group = "XXX")
+@EtcdConfig(namespace = "XXX")
 public interface MyConfig {
     @ApolloConfig // 可省略
     @DiamondConfig // 可省略
+    @EtcdConfig // 可省略
     String value();
 }
 ```
@@ -167,17 +181,23 @@ propertyName: value
 group: XXX
 dataId: value
 
+# etcd
+namespace: XXX
+key: value
+
 String value();方法返回配置完整内容字符串
 ```
 
-##### 2.3. 仅指定接口的propertyName/dataId
+##### 2.3. 仅指定接口的propertyName/dataId/key
 
 ```java
 @ApolloConfig(propertyName = "YYY")
 @DiamondConfig(dataId = "YYY")
+@EtcdConfig(key = "YYY")
 public interface MyConfig {
     @ApolloConfig // 可省略
     @DiamondConfig // 可省略
+    @EtcdConfig // 可省略
     String value();
 }
 ```
@@ -191,6 +211,10 @@ propertyName: YYY
 # diamond
 group: DEFAULT_GROUP
 dataId: YYY
+
+# etcd
+namespace: application
+key: YYY
 
 String value();方法返回配置内容按Properties解析后的键value的配置值
 ```
@@ -200,9 +224,11 @@ String value();方法返回配置内容按Properties解析后的键value的配�
 ```java
 @ApolloConfig
 @DiamondConfig
+@EtcdConfig
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ")
     @DiamondConfig(group = "ZZZ")
+    @EtcdConfig(namespace = "ZZZ")
     String value();
 }
 ```
@@ -217,17 +243,23 @@ propertyName: value
 group: ZZZ
 dataId: value
 
+# etcd
+namespace: ZZZ
+key: value
+
 String value();方法返回配置完整内容字符串
 ```
 
-##### 2.5. 仅指定方法的propertyName/dataId
+##### 2.5. 仅指定方法的propertyName/dataId/key
 
 ```java
 @ApolloConfig
 @DiamondConfig
+@EtcdConfig
 public interface MyConfig {
     @ApolloConfig(propertyName = "abc")
     @DiamondConfig(dataId = "abc")
+    @EtcdConfig(key = "abc")
     String value();
 }
 ```
@@ -242,17 +274,23 @@ propertyName: abc
 group: DEFAULT_GROUP
 dataId: abc
 
+# etcd
+namespace: application
+key: abc
+
 String value();方法返回配置完整内容字符串
 ```
 
-##### 2.6. 指定接口的namespace/group和propertyName/dataId
+##### 2.6. 指定接口的namespace/group和propertyName/dataId/key
 
 ```java
 @ApolloConfig(namespace = "XXX", propertyName = "YYY")
 @DiamondConfig(group = "XXX", dataId = "YYY")
+@EtcdConfig(namespace = "XXX", key = "YYY")
 public interface MyConfig {
     @ApolloConfig // 可省略
     @DiamondConfig // 可省略
+    @EtcdConfig // 可省略
     String value();
 }
 ```
@@ -267,17 +305,23 @@ propertyName: YYY
 group: XXX
 dataId: YYY
 
+# etcd
+namespace: XXX
+key: YYY
+
 String value();方法返回配置内容按Properties解析后的键value的配置值
 ```
 
-##### 2.7. 指定方法的namespace/group和propertyName/dataId
+##### 2.7. 指定方法的namespace/group和propertyName/dataId/key
 
 ```java
 @ApolloConfig
 @DiamondConfig
+@EtcdConfig
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ", propertyName = "abc")
     @DiamondConfig(group = "ZZZ", dataId = "abc")
+    @EtcdConfig(namespace = "ZZZ", key = "abc")
     String value();
 }
 ```
@@ -291,6 +335,10 @@ propertyName: abc
 # diamond
 group: ZZZ
 dataId: abc
+
+# etcd
+namespace: ZZZ
+key: abc
 
 String value();方法返回配置完整内容字符串
 ```
@@ -300,9 +348,11 @@ String value();方法返回配置完整内容字符串
 ```java
 @ApolloConfig(namespace = "XXX")
 @DiamondConfig(group = "XXX")
+@EtcdConfig(namespace = "XXX")
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ")
     @DiamondConfig(group = "ZZZ")
+    @EtcdConfig(namespace = "ZZZ")
     String value();
 }
 ```
@@ -317,17 +367,23 @@ propertyName: value
 group: ZZZ
 dataId: value
 
+# etcd
+namespace: ZZZ
+key: value
+
 String value();方法返回配置完整内容字符串
 ```
 
-##### 2.9. 指定接口和方法的propertyName/dataId
+##### 2.9. 指定接口和方法的propertyName/dataId/key
 
 ```java
 @ApolloConfig(propertyName = "YYY")
 @DiamondConfig(dataId = "YYY")
+@EtcdConfig(key = "YYY")
 public interface MyConfig {
     @ApolloConfig(propertyName = "abc")
     @DiamondConfig(dataId = "abc")
+    @EtcdConfig(key = "abc")
     String value();
 }
 ```
@@ -342,17 +398,23 @@ propertyName: YYY
 group: DEFAULT_GROUP
 dataId: YYY
 
+# etcd
+namespace: application
+key: YYY
+
 String value();方法返回配置内容按Properties解析后的键abc的配置值
 ```
 
-##### 2.10. 指定接口的namespace/group, 并指定方法的propertyName/dataId
+##### 2.10. 指定接口的namespace/group, 并指定方法的propertyName/dataId/key
 
 ```java
 @ApolloConfig(namespace = "XXX")
 @DiamondConfig(group = "XXX")
+@EtcdConfig(namespace = "XXX")
 public interface MyConfig {
     @ApolloConfig(propertyName = "abc")
     @DiamondConfig(dataId = "abc")
+    @EtcdConfig(key = "abc")
     String value();
 }
 ```
@@ -367,17 +429,23 @@ propertyName: abc
 group: XXX
 dataId: abc
 
+# etcd
+namespace: XXX
+key: abc
+
 String value();方法返回配置完整内容字符串
 ```
 
-##### 2.11. 指定接口的propertyName/dataId, 指定方法的namespace/group
+##### 2.11. 指定接口的propertyName/dataId/key, 指定方法的namespace/group
 
 ```java
 @ApolloConfig(propertyName = "YYY")
 @DiamondConfig(dataId = "YYY")
+@EtcdConfig(key = "YYY")
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ")
     @DiamondConfig(group = "ZZZ")
+    @EtcdConfig(namespace = "ZZZ")
     String value();
 }
 ```
@@ -391,6 +459,10 @@ propertyName: YYY
 # diamond
 group: DEFAULT_GROUP
 dataId: YYY
+
+# etcd
+namespace: application
+key: YYY
 
 String value();方法返回配置内容按Properties解析后的键ZZZ.value的配置值
 ```
@@ -400,9 +472,11 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.value的�
 ```java
 @ApolloConfig(propertyName = "YYY")
 @DiamondConfig(dataId = "YYY")
+@EtcdConfig(key = "YYY")
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ", propertyName = "abc")
     @DiamondConfig(group = "ZZZ", dataId = "abc")
+    @EtcdConfig(namespace = "ZZZ", key = "abc")
     String value();
 }
 ```
@@ -417,17 +491,23 @@ propertyName: YYY
 group: DEFAULT_GROUP
 dataId: YYY
 
+# etcd
+namespace: application
+key: YYY
+
 String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配置值
 ```
 
-##### 2.13. 不指定接口的propertyName/dataId
+##### 2.13. 不指定接口的propertyName/dataId/key
 
 ```java
 @ApolloConfig(namespace = "XXX")
 @DiamondConfig(group = "XXX")
+@EtcdConfig(namespace = "XXX")
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ", propertyName = "abc")
     @DiamondConfig(group = "ZZZ", dataId = "abc")
+    @EtcdConfig(namespace = "ZZZ", key = "abc")
     String value();
 }
 ```
@@ -442,6 +522,10 @@ propertyName: abc
 group: ZZZ
 dataId: abc
 
+# etcd
+namespace: ZZZ
+key: abc
+
 String value();方法返回配置完整内容字符串
 ```
 
@@ -450,9 +534,11 @@ String value();方法返回配置完整内容字符串
 ```java
 @ApolloConfig(namespace = "XXX", propertyName = "YYY")
 @DiamondConfig(group = "XXX", dataId = "YYY")
+@EtcdConfig(namespace = "XXX", key = "YYY")
 public interface MyConfig {
     @ApolloConfig(propertyName = "abc")
     @DiamondConfig(dataId = "abc")
+    @EtcdConfig(key = "abc")
     String value();
 }
 ```
@@ -466,18 +552,24 @@ propertyName: YYY
 # diamond
 group: XXX
 dataId: YYY
+
+# etcd
+namespace: XXX
+key: YYY
 
 String value();方法返回配置内容按Properties解析后的键abc的配置值
 ```
 
-##### 2.15. 不指定方法的propertyName/dataId
+##### 2.15. 不指定方法的propertyName/dataId/key
 
 ```java
 @ApolloConfig(namespace = "XXX", propertyName = "YYY")
 @DiamondConfig(group = "XXX", dataId = "YYY")
+@EtcdConfig(namespace = "XXX", key = "YYY")
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ")
     @DiamondConfig(group = "ZZZ")
+    @EtcdConfig(namespace = "ZZZ")
     String value();
 }
 ```
@@ -491,6 +583,10 @@ propertyName: YYY
 # diamond
 group: XXX
 dataId: YYY
+
+# etcd
+namespace: XXX
+key: YYY
 
 String value();方法返回配置内容按Properties解析后的键ZZZ.value的配置值
 ```
@@ -500,9 +596,11 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.value的�
 ```java
 @ApolloConfig(namespace = "XXX", propertyName = "YYY")
 @DiamondConfig(group = "XXX", dataId = "YYY")
+@EtcdConfig(namespace = "XXX", key = "YYY")
 public interface MyConfig {
     @ApolloConfig(namespace = "ZZZ", propertyName = "abc")
     @DiamondConfig(group = "ZZZ", dataId = "abc")
+    @EtcdConfig(namespace = "ZZZ", key = "abc")
     String value();
 }
 ```
@@ -516,6 +614,10 @@ propertyName: YYY
 # diamond
 group: XXX
 dataId: YYY
+
+# etcd
+namespace: XXX
+key: YYY
 
 String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配置值
 ```
@@ -561,15 +663,15 @@ String value();方法返回配置内容按Properties解析后的键ZZZ.abc的配
 
 当配置内容以```# toml```开头时, 将按TOML格式读取配置为Properties对象.
 
-#### 9. 兼容使用apollo/diamond
+#### 9. 兼容使用apollo/diamond/etcd
 
-配置客户端接口同时添加```@ApolloConfig```和```@DiamondConfig```注解, 或添加```@Config```注解.
+配置客户端接口同时添加```@ApolloConfig```, ```@DiamondConfig```和```@EtcdConfig```注解, 或添加```@Config```注解.
 
 使用```ConfigFactory.getConfig()```方法获取客户端实例.
 
-当类路径中仅包含apollo-client或diamond-client时, 将自动选取对应的配置实现.
+当类路径中仅包含apollo-client或diamond-client或etcdconf-client时, 将自动选取对应的配置实现.
 
-当类路径中同时包含apollo-client和diamond-client时, 根据[环境变量](#3-指定坐标时使用环境变量)中设置的```ConfigService```值选取对应的配置实现.
+当类路径中同时包含apollo-client/diamond-client/etcdconf-client时, 根据[环境变量](#3-指定坐标时使用环境变量)中设置的```ConfigService```值选取对应的配置实现.
 
 ```
 # configservice.env.props
@@ -578,16 +680,15 @@ ConfigService=apollo
 # Arguments
 --ConfigService=apollo
 ```
-默认使用diamond配置实现.
 
 #### 10. 在Spring中使用
 
-使用```@ApolloScan```/```@DiamondScan```/```@ConfigScan```指定扫描加载包路径.
+使用```@ApolloScan```/```@DiamondScan```/```@EtcdScan```/```@ConfigScan```指定扫描加载包路径.
 
-包路径中所有添加```@ApolloConfig```/```@DiamondConfig```/```@Config```注解的接口都将生成对应的配置客户端实例并注入SpringContext.
+包路径中所有添加```@ApolloConfig```/```@DiamondConfig```/```@EtcdConfig```/```@Config```注解的接口都将生成对应的配置客户端实例并注入SpringContext.
 
 #### 11. 在Guice中使用
 
-使用```ApolloModular```/```DiamondModular```/```ConfigModular```按类或包路径扫描加载.
+使用```ApolloModular```/```DiamondModular```/```EtcdModular```/```ConfigModular```按类或包路径扫描加载.
 
 创建的```Module```中将包含对应的配置客户端实例.
