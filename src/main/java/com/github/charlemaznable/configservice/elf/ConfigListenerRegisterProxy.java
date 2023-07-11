@@ -8,12 +8,16 @@ import lombok.val;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import static com.github.charlemaznable.core.lang.Condition.checkNotBlank;
 import static com.github.charlemaznable.core.lang.Str.isBlank;
+import static java.util.concurrent.Executors.newCachedThreadPool;
 
 @Slf4j(topic = "ConfigService")
 public abstract class ConfigListenerRegisterProxy<P extends ConfigListenerProxy> implements ConfigListenerRegister {
+
+    private static final ExecutorService listenerExecutor = newCachedThreadPool();
 
     protected final Class<?> configClass;
     protected final ConfigLoader configLoader;
@@ -63,6 +67,10 @@ public abstract class ConfigListenerRegisterProxy<P extends ConfigListenerProxy>
 
     protected String defaultListeningKey() {
         return configLoader.fetchConfigSetting(configClass).key();
+    }
+
+    protected void submitListenerEvent(Runnable runnable) {
+        listenerExecutor.submit(runnable);
     }
 
     protected abstract Map<Triple<String, String, ConfigListener>, P> listenerMap();

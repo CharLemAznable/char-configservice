@@ -149,15 +149,15 @@ public final class EtcdFactory {
         @Override
         protected EtcdConfigListener addConfigListenerProxy(String keyset, String key, ConfigListener listener) {
             val etcdListener = new EtcdConfigListener(keyset, key, listener);
-            new Thread(() -> EtcdConfigService.getConfig(keyset)
-                    .addChangeListener(key, etcdListener)).start();
+            submitListenerEvent(() -> EtcdConfigService.getConfig(keyset)
+                    .addChangeListener(key, etcdListener));
             return etcdListener;
         }
 
         @Override
         protected void removeConfigListenerProxy(String keyset, String key, EtcdConfigListener listenerProxy) {
-            new Thread(() -> EtcdConfigService.getConfig(keyset)
-                    .removeChangeListener(listenerProxy)).start();
+            submitListenerEvent(() -> EtcdConfigService.getConfig(keyset)
+                    .removeChangeListener(listenerProxy));
         }
     }
 }

@@ -159,15 +159,15 @@ public final class DiamondFactory {
         @Override
         protected DiamondConfigListener addConfigListenerProxy(String keyset, String key, ConfigListener listener) {
             val diamondListener = new DiamondConfigListener(keyset, key, listener);
-            new Thread(() -> DiamondSubscriber.getInstance()
-                    .addDiamondListener(DiamondAxis.makeAxis(keyset, key), diamondListener)).start();
+            submitListenerEvent(() -> DiamondSubscriber.getInstance()
+                    .addDiamondListener(DiamondAxis.makeAxis(keyset, key), diamondListener));
             return diamondListener;
         }
 
         @Override
         protected void removeConfigListenerProxy(String keyset, String key, DiamondConfigListener listenerProxy) {
-            new Thread(() -> DiamondSubscriber.getInstance()
-                    .removeDiamondListener(DiamondAxis.makeAxis(keyset, key), listenerProxy)).start();
+            submitListenerEvent(() -> DiamondSubscriber.getInstance()
+                    .removeDiamondListener(DiamondAxis.makeAxis(keyset, key), listenerProxy));
         }
     }
 }

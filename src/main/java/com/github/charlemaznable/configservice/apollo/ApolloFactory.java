@@ -152,15 +152,15 @@ public final class ApolloFactory {
         @Override
         protected ApolloConfigListener addConfigListenerProxy(String keyset, String key, ConfigListener listener) {
             val apolloListener = new ApolloConfigListener(keyset, key, listener);
-            new Thread(() -> ConfigService.getConfig(keyset)
-                    .addChangeListener(apolloListener, newHashSet(key))).start();
+            submitListenerEvent(() -> ConfigService.getConfig(keyset)
+                    .addChangeListener(apolloListener, newHashSet(key)));
             return apolloListener;
         }
 
         @Override
         protected void removeConfigListenerProxy(String keyset, String key, ApolloConfigListener listenerProxy) {
-            new Thread(() -> ConfigService.getConfig(keyset)
-                    .removeChangeListener(listenerProxy)).start();
+            submitListenerEvent(() -> ConfigService.getConfig(keyset)
+                    .removeChangeListener(listenerProxy));
         }
     }
 }
