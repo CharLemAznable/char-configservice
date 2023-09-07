@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import static com.github.charlemaznable.core.config.Arguments.argumentsAsProperties;
+import static com.github.charlemaznable.core.lang.Clz.isAssignable;
 import static com.github.charlemaznable.core.lang.ClzPath.classResourceAsProperties;
 import static com.github.charlemaznable.core.lang.Propertiess.ssMap;
 import static com.github.charlemaznable.core.lang.Propertiess.tryDecrypt;
@@ -68,12 +69,12 @@ public final class ConfigServiceElf {
             }
         }
 
-        if (Map.class.isAssignableFrom(rt))
+        if (isAssignable(rt, Map.class))
             return parseStringToProperties(value, password);
 
         val grt = method.getGenericReturnType();
         val isCollection = grt instanceof ParameterizedType
-                && Collection.class.isAssignableFrom(rt);
+                && isAssignable(rt, Collection.class);
 
         if (!isCollection) return Objectt.parseObject(value, rt);
         return Objectt.parseObjects(value,
