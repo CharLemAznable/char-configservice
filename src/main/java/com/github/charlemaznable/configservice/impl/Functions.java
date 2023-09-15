@@ -6,6 +6,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.github.charlemaznable.core.lang.Condition.checkBlank;
+
 public interface Functions {
 
     Function<String, String> TO_STR_FUNCTION = Function.identity();
@@ -63,5 +65,15 @@ public interface Functions {
             }
             return Long.parseLong(parsed) * multiplier;
         }
+    }
+
+    static <T> T parseStringToValue(String str, T defaultValue, Function<String, T> parser) {
+        return checkBlank(str, () -> defaultValue, value -> {
+            try {
+                return parser.apply(value);
+            } catch (Exception e) {
+                return defaultValue;
+            }
+        });
     }
 }

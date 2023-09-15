@@ -4,8 +4,6 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.function.Function;
 
-import static com.github.charlemaznable.core.lang.Condition.checkBlank;
-
 public abstract class DefaultPropertyConfigGetter extends DefaultConfigGetter {
 
     public abstract String getPropertyValue(String keyset, String key);
@@ -51,12 +49,6 @@ public abstract class DefaultPropertyConfigGetter extends DefaultConfigGetter {
     }
 
     private <T> T getValue(String key, T defaultValue, Function<String, T> parser) {
-        return checkBlank(getString(key), () -> defaultValue, value -> {
-            try {
-                return parser.apply(value);
-            } catch (Exception e) {
-                return defaultValue;
-            }
-        });
+        return Functions.parseStringToValue(getString(key), defaultValue, parser);
     }
 }
