@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.github.charlemaznable</groupId>
         <artifactId>char-dependencies</artifactId>
-        <version>2023.2.3-SNAPSHOT</version>
+        <version>2024.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>char-configservice</artifactId>
-    <version>2023.2.3-SNAPSHOT</version>
+    <version>2024.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Char ConfigService</name>
@@ -54,11 +54,11 @@
             src/main/java/com/github/charlemaznable/configservice/etcd/EtcdScan.java
         </sonar.exclusions>
 
-        <char-elves.version>2023.2.3-SNAPSHOT</char-elves.version>
-        <etcdconf-client.version>2023.2.3-SNAPSHOT</etcdconf-client.version>
+        <char-elves.version>2024.0.0-SNAPSHOT</char-elves.version>
+        <etcdconf-client.version>2024.0.0-SNAPSHOT</etcdconf-client.version>
 
-        <apollo-mockserver.version>2023.2.3-SNAPSHOT</apollo-mockserver.version>
-        <logback-dendrobe.version>2023.2.3-SNAPSHOT</logback-dendrobe.version>
+        <apollo-mockserver.version>2024.0.0-SNAPSHOT</apollo-mockserver.version>
+        <logback-dendrobe.version>2024.0.0-SNAPSHOT</logback-dendrobe.version>
     </properties>
 
     <dependencies>
@@ -84,7 +84,7 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.moandjiezana.toml</groupId>
+            <groupId>io.hotmoka</groupId>
             <artifactId>toml4j</artifactId>
         </dependency>
         <dependency>
